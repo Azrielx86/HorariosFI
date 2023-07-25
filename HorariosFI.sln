@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33815.320
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HorariosFI.ConsoleApp", "HorariosFI.ConsoleApp\HorariosFI.ConsoleApp.csproj", "{AC74145D-CA28-4331-ABB1-BAEC3D77F12F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HorariosFI.Core", "HorariosFI.Core\HorariosFI.Core.csproj", "{4CA6592F-895C-42E4-83BC-32C7E2F36DF5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AC74145D-CA28-4331-ABB1-BAEC3D77F12F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AC74145D-CA28-4331-ABB1-BAEC3D77F12F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AC74145D-CA28-4331-ABB1-BAEC3D77F12F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AC74145D-CA28-4331-ABB1-BAEC3D77F12F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4CA6592F-895C-42E4-83BC-32C7E2F36DF5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4CA6592F-895C-42E4-83BC-32C7E2F36DF5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4CA6592F-895C-42E4-83BC-32C7E2F36DF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4CA6592F-895C-42E4-83BC-32C7E2F36DF5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {ACD7880A-1487-4AAF-B869-AAFDC895EA88}
+	EndGlobalSection
+EndGlobal
