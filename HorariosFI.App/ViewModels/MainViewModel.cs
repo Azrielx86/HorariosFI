@@ -1,6 +1,8 @@
 ﻿using DocumentFormat.OpenXml.Office.CustomUI;
 using HorariosFI.App.Models;
 using HorariosFI.Core;
+using MsBox.Avalonia;
+using MsBox.Avalonia.Enums;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
@@ -54,23 +56,30 @@ public class MainViewModel : ViewModelBase
         {
             foreach (var item in ClassItems)
             {
-                var (clase, _) = await FIScrapper.GetClassList(item.Clave);
-                var classdict = new Dictionary<string, IEnumerable<ClassModel>>() { { $"{item.Clave}-{item.Nombre}", clase } };
-
-                var mp = new MPScrapper();
-                foreach (var cl in classdict)
-                {
-                    Progreso = true;
-                    await mp.Run(cl.Value);
-                    Progreso = false;
-                }
                 try
                 {
+                    var (clase, errores) = await FIScrapper.GetClassList(item.Clave);
+                    var classdict = new Dictionary<string, IEnumerable<ClassModel>>() { { $"{item.Clave}-{item.Nombre}", clase } };
+
+                    var mp = new MPScrapper();
+                    foreach (var cl in classdict)
+                    {
+                        Progreso = true;
+                        await mp.Run(cl.Value);
+                        Progreso = false;
+                    }
+
+                    if (errores.Any())
+                        throw new Exception(string.Join("\n", errores));
+
                     ExcelExport.Export(classdict);
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine($"Error: {e}");
+                    Progreso = false;
+                    await MessageBoxManager
+                          .GetMessageBoxStandard("Error", e.ToString(), ButtonEnum.Ok)
+                          .ShowAsync();
                 }
             }
             ClassItems.Clear();

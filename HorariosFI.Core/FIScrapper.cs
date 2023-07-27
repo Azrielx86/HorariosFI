@@ -9,8 +9,6 @@ public partial class FIScrapper
     private const string FI_URL = "https://www.ssa.ingenieria.unam.mx/cj/tmp/programacion_horarios/{0}.html?";
     private static readonly string[] days = { "Lun", "Mar", "Mie", "Jue", "Vie" };
     private static readonly string[] HEADER = { "Clave", "Gpo", "Profesor", "Tipo", "Horario", "Dias", "Cupo" };
-    private static int NO_VAC_COLUMNS = 7;
-    private static int VAC_COLUMNS = 8;
 
     public static async Task<(List<ClassModel>, IEnumerable<string>)> GetClassList(int class_code)
     {

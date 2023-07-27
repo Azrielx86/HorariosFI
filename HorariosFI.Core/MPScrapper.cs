@@ -1,6 +1,7 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using HorariosFI.Core.Extensions;
+using HorariosFI.Core.Exeptions;
 
 namespace HorariosFI.Core;
 
@@ -47,10 +48,14 @@ public class MPScrapper
 
                 try
                 {
+                    var sleep = Random.Shared.Next(500, 4000);
+                    Thread.Sleep(sleep);
                     var mpUrl = string.Format(MP_URL, classvar.Profesor);
                     driver.Navigate().GoToUrl(mpUrl);
 
-                    var page = driver.FindElement(By.XPath(MP_LINK_XPATH));
+                    var page = driver.FindElement(By.XPath(MP_LINK_XPATH), TIMEOUT) ?? throw new RobotDetectedException();
+                    sleep = Random.Shared.Next(500, 4000);
+                    Thread.Sleep(sleep);
                     page.Click();
 
                     var handles = driver.WindowHandles;
@@ -70,6 +75,7 @@ public class MPScrapper
 
                     found.Add(classvar.Profesor!, classvar);
                 }
+                catch (RobotDetectedException rb) { throw rb; }
                 catch (Exception ex)
                 {
                     Console.BackgroundColor = ConsoleColor.Red;
