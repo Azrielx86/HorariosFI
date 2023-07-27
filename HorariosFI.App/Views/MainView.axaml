@@ -1,0 +1,60 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:HorariosFI.App.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="720"
+			 d:DesignHeight="450"
+             x:Class="HorariosFI.App.Views.MainView"
+             x:DataType="vm:MainViewModel">
+	<Design.DataContext>
+		<!-- This only sets the DataContext for the previewer in an IDE,
+         to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
+		<vm:MainViewModel />
+	</Design.DataContext>
+
+	<Grid Margin="15"
+		  ColumnDefinitions="Auto,*,Auto"
+		  RowDefinitions="Auto,Auto,*,Auto">
+		<TextBox Grid.Row="0"
+				 Grid.Column="0"
+				 Margin="10,0,10,5"
+				 VerticalAlignment="Center"
+				 Watermark="Clave"
+				 Padding="5"
+				 Text="{Binding Clave}"></TextBox>
+
+		<TextBox Grid.Row="0"
+				 Grid.Column="1"
+				 Margin="10,0,10,5"
+				 VerticalAlignment="Center"
+				 Watermark="Nombre de la materia"
+				 Padding="5"
+				 Text="{Binding NombreClase}"></TextBox>
+
+		<Button Grid.Row="0" Grid.Column="3"
+				Margin="10,0,10,5"
+				VerticalAlignment="Center"
+				HorizontalAlignment="Center"
+				Command="{Binding AddClass}">Agregar</Button>
+
+		<ProgressBar Grid.ColumnSpan="3"
+					 Grid.Row="1"
+					 IsIndeterminate="{Binding Progreso}"></ProgressBar>
+		<!--Tabla
+		-->
+		<DataGrid Grid.ColumnSpan="3"
+				  Grid.Row="2"
+				  ItemsSource="{Binding ClassItems}"
+				  AutoGenerateColumns="False">
+			<DataGrid.Columns>
+				<DataGridTextColumn Header="Clave" Binding="{Binding Clave}"></DataGridTextColumn>
+				<DataGridTextColumn Header="Nombre de la materia" Binding="{Binding Nombre}"></DataGridTextColumn>
+			</DataGrid.Columns>
+		</DataGrid>
+
+		<Button Grid.ColumnSpan="3"
+				Grid.Row="4"
+				Command="{Binding Buscar}">Buscar</Button>
+	</Grid>
+</UserControl>

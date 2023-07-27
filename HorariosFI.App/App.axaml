@@ -1,0 +1,17 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="HorariosFI.App.App"
+             xmlns:themes="clr-namespace:Material.Styles.Themes;assembly=Material.Styles"
+             RequestedThemeVariant="Default">
+	<!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
+	<Application.Styles>
+		<FluentTheme />
+		<StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml" />
+	</Application.Styles>
+
+	<!--
+    <Application.Styles>
+		<themes:MaterialTheme BaseTheme="Dark" PrimaryColor="LightGreen" SecondaryColor="Lime" />
+    </Application.Styles>
+    -->
+</Application>
