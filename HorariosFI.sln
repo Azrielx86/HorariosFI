@@ -3,9 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.6.33815.320
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HorariosFI.ConsoleApp", "HorariosFI.ConsoleApp\HorariosFI.ConsoleApp.csproj", "{AC74145D-CA28-4331-ABB1-BAEC3D77F12F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HorariosFI.ConsoleApp", "HorariosFI.ConsoleApp\HorariosFI.ConsoleApp.csproj", "{AC74145D-CA28-4331-ABB1-BAEC3D77F12F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HorariosFI.Core", "HorariosFI.Core\HorariosFI.Core.csproj", "{4CA6592F-895C-42E4-83BC-32C7E2F36DF5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HorariosFI.Core", "HorariosFI.Core\HorariosFI.Core.csproj", "{4CA6592F-895C-42E4-83BC-32C7E2F36DF5}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HorariosFI.App", "HorariosFI.App\HorariosFI.App.csproj", "{82F1B072-25E9-40D1-8550-F5DA87F81476}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HorariosFI.App.Desktop", "HorariosFI.App.Desktop\HorariosFI.App.Desktop.csproj", "{9EED970F-01BC-464D-BE69-1B80E1861A91}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +25,14 @@ Global
 		{4CA6592F-895C-42E4-83BC-32C7E2F36DF5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4CA6592F-895C-42E4-83BC-32C7E2F36DF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4CA6592F-895C-42E4-83BC-32C7E2F36DF5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{82F1B072-25E9-40D1-8550-F5DA87F81476}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{82F1B072-25E9-40D1-8550-F5DA87F81476}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{82F1B072-25E9-40D1-8550-F5DA87F81476}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{82F1B072-25E9-40D1-8550-F5DA87F81476}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9EED970F-01BC-464D-BE69-1B80E1861A91}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9EED970F-01BC-464D-BE69-1B80E1861A91}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9EED970F-01BC-464D-BE69-1B80E1861A91}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9EED970F-01BC-464D-BE69-1B80E1861A91}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,53 +1,89 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
+using HorariosFI.Core.Extensions;
 
 namespace HorariosFI.Core;
 
 public class MPScrapper
 {
-    public void Run(IEnumerable<ClassModel> classes)
+    private const string MP_URL = "https://www.misprofesores.com/Buscar?buscar=Profesores&q={0}";
+    private const string MP_LINK_XPATH = "//*[@id=\"___gcse_0\"]/div/div/div/div[5]/div[2]/div/div/div[1]/div[1]/div[1]/div[1]/div/a";
+
+    private const string GENERAL_GRADE_XPATH = "/html/body/div[1]/div[2]/div/div/div[2]/div[1]/div/div[1]/div/div/div";
+    //"//*[@id=\"mainContent\"]/div/div[2]/div[1]/div/div[1]/div/div/div";
+
+    private const string RECOMMEND_XPATH = "/html/body/div[1]/div[2]/div/div/div[2]/div[1]/div/div[2]/div[1]/div";
+
+    //"//*[@id=\"mainContent\"]/div/div[2]/div[1]/div/div[2]/div[1]/div";
+    private const string DIFFICULTY_XPATH = "/html/body/div[1]/div[2]/div/div/div[2]/div[1]/div/div[2]/div[2]/div";
+
+    //"//*[@id=\"mainContent\"]/div/div[2]/div[1]/div/div[2]/div[2]/div";
+    private const int TIMEOUT = 3;
+
+    public async Task Run(IEnumerable<ClassModel> classes)
     {
-        var chromeOptions = new ChromeOptions();
-        chromeOptions.AddArgument("log-level=3");
-        chromeOptions.AddArgument("headless");
-        var chromeService = ChromeDriverService.CreateDefaultService();
-        chromeService.HideCommandPromptWindow = true;
-        using var driver = new ChromeDriver(chromeService, chromeOptions);
-
-        foreach (var classvar in classes)
+        await Task.Run(() =>
         {
-            var mpUrl = string.Format(MPUrls.MP_URL, classvar.Name);
-            driver.Navigate().GoToUrl(mpUrl);
+            var chromeOptions = new ChromeOptions();
+            chromeOptions.AddArgument("log-level=3");
+            //chromeOptions.AddArgument("headless");
+            var chromeService = ChromeDriverService.CreateDefaultService();
+            chromeService.HideCommandPromptWindow = true;
+            using var driver = new ChromeDriver(chromeService, chromeOptions);
 
-            var page = driver.FindElement(By.XPath(MPUrls.MP_LINK_XPATH));
-            page.Click();
-
-            var handles = driver.WindowHandles;
-            driver.SwitchTo().Window(handles[1]);
-
-            var generalGrade = driver.FindElement(By.XPath(MPUrls.GENERAL_GRADE_XPATH)).Text;
-            var difficulty = driver.FindElement(By.XPath(MPUrls.DIFFICULTY_XPATH)).Text;
-            var recommend = driver.FindElement(By.XPath(MPUrls.RECOMMEND_XPATH)).Text;
-
-            try
+            var found = new Dictionary<string, ClassModel>();
+            foreach (var classvar in classes)
             {
-                classvar.Grade = double.Parse(generalGrade);
-                classvar.Difficult = double.Parse(difficulty);
-                classvar.Recommend = double.Parse(recommend.Replace("%", ""));
-                classvar.MisProfesoresUrl = driver.Url;
-            }
-            catch (Exception ex)
-            {
-                Console.BackgroundColor = ConsoleColor.Red;
-                Console.WriteLine(ex);
-                Console.ResetColor();
-            }
+                if (found.ContainsKey(classvar.Profesor!))
+                {
+                    Console.WriteLine($"{classvar.Profesor} ya fue buscado.");
+                    var p = found[classvar.Profesor!];
+                    classvar.Grade = p.Grade;
+                    classvar.Difficult = p.Difficult;
+                    classvar.Recommend = p.Recommend;
+                    classvar.MisProfesoresUrl = p.MisProfesoresUrl;
+                    continue;
+                }
 
-            Console.WriteLine(classvar.Name);
-            Console.WriteLine($"Grade: {generalGrade}\nDifficulty: {difficulty}\nRecommend: {recommend}");
+                try
+                {
+                    var mpUrl = string.Format(MP_URL, classvar.Profesor);
+                    driver.Navigate().GoToUrl(mpUrl);
 
-            driver.Close();
-            driver.SwitchTo().Window(handles[0]);
-        }
+                    var page = driver.FindElement(By.XPath(MP_LINK_XPATH));
+                    page.Click();
+
+                    var handles = driver.WindowHandles;
+                    driver.SwitchTo().Window(handles[1]);
+
+                    var generalGrade = driver.FindElement(By.XPath(GENERAL_GRADE_XPATH), TIMEOUT) ?? throw new Exception("No value");
+                    var difficulty = driver.FindElement(By.XPath(DIFFICULTY_XPATH), TIMEOUT) ?? throw new Exception("No value");
+                    var recommend = driver.FindElement(By.XPath(RECOMMEND_XPATH), TIMEOUT) ?? throw new Exception("No value");
+
+                    classvar.Grade = double.Parse(generalGrade.Text);
+                    classvar.Difficult = double.Parse(difficulty.Text);
+                    classvar.Recommend = double.Parse(recommend.Text.Replace("%", ""));
+                    classvar.MisProfesoresUrl = driver.Url;
+
+                    Console.WriteLine(classvar.Profesor);
+                    Console.WriteLine($"Grade: {generalGrade}\nDifficulty: {difficulty}\nRecommend: {recommend}");
+
+                    found.Add(classvar.Profesor!, classvar);
+                }
+                catch (Exception ex)
+                {
+                    Console.BackgroundColor = ConsoleColor.Red;
+                    Console.WriteLine(ex);
+                    Console.ResetColor();
+                }
+                finally
+                {
+                    var handles = driver.WindowHandles;
+                    driver.SwitchTo().Window(handles[1]);
+                    driver.Close();
+                    driver.SwitchTo().Window(handles[0]);
+                }
+            }
+        });
     }
 }
