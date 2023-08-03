@@ -27,7 +27,7 @@ public class MPScrapper
         {
             var chromeOptions = new ChromeOptions();
             chromeOptions.AddArgument("log-level=3");
-            //chromeOptions.AddArgument("headless");
+            chromeOptions.AddArgument("headless");
             var chromeService = ChromeDriverService.CreateDefaultService();
             chromeService.HideCommandPromptWindow = true;
             using var driver = new ChromeDriver(chromeService, chromeOptions);

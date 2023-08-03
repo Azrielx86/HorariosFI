@@ -24,12 +24,12 @@ public enum PropIndex
 
 public class ExcelExport
 {
-    private static readonly string[] HEADER = { "Clave", "Gpo", "Profesor", "Tipo", "Horario", "Dias", "Cupo" };
+    private static readonly string FILENAME = "Horarios FI.xlsx";
 
     public static void Export(Dictionary<string, IEnumerable<ClassModel>>? classes)
     {
         if (classes is null) return;
-        using var document = File.Exists("FISchedules.xlsx") ? new SLDocument("FISchedules.xlsx") : new SLDocument();
+        using var document = File.Exists(FILENAME) ? new SLDocument(FILENAME) : new SLDocument();
 
         var red = document.CreateStyle();
         red.Fill.SetPattern(PatternValues.Solid, SColor.LightCoral, SColor.White);
@@ -42,7 +42,7 @@ public class ExcelExport
 
         foreach (var classItem in classes)
         {
-            var wsName = $"Clase {classItem.Key}";
+            var wsName = $"{classItem.Key}";
             if (document.GetWorksheetNames().Contains(wsName))
                 continue;
             document.AddWorksheet(wsName);
@@ -100,6 +100,6 @@ public class ExcelExport
                     document.SetCellStyle(index + 2, (int)PropIndex.Recommend, red);
             }
         }
-        document.SaveAs("FISchedules.xlsx");
+        document.SaveAs(FILENAME);
     }
 }

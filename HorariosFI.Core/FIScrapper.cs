@@ -8,7 +8,7 @@ public partial class FIScrapper
 {
     private const string FI_URL = "https://www.ssa.ingenieria.unam.mx/cj/tmp/programacion_horarios/{0}.html?";
     private static readonly string[] days = { "Lun", "Mar", "Mie", "Jue", "Vie" };
-    private static readonly string[] HEADER = { "Clave", "Gpo", "Profesor", "Tipo", "Horario", "Dias", "Cupo" };
+    private static readonly string[] HEADER = { "Clave", "Gpo", "Profesor", "Tipo", "Cupo", "Vacantes", "Horario", "Dias" };
 
     public static async Task<(List<ClassModel>, IEnumerable<string>)> GetClassList(int class_code)
     {
@@ -32,41 +32,22 @@ public partial class FIScrapper
         {
             try
             {
-                if (item.ChildNodes.Count > 1) // Cuando hay más de un día o horario
-                {
-                    var data = item.SelectNodes("tr")
-                                      .SelectMany(t => t.SelectNodes("td"))
-                                      .Select(t => t.InnerText)
-                                      .ToList();
+                var data = item.SelectNodes("tr")
+                                  .SelectMany(t => t.SelectNodes("td"))
+                                  .Select(t => t.InnerText)
+                                  .ToList();
+                if (data.Remove("L")) data[data.IndexOf("T")] = "T/L"; // Clases con lab incluido
+                var times = data.Where(s => TimeRegex().IsMatch(s)).ToArray();
+                var days = data.Where(s => DayRegex().IsMatch(s)).ToArray();
+                data.RemoveAll(s => times.Contains(s) || days.Contains(s));
 
-                    if (data.Count >= 10)
-                    {
-                        data.Remove("L");
-                    }
-                    var times = data.Where(s => TimeRegex().IsMatch(s)).ToArray();
-                    var days = data.Where(s => DayRegex().IsMatch(s)).ToArray();
-                    data.RemoveAll(s => times.Contains(s) || days.Contains(s));
-                    var cupo = data[^1];
-                    data.RemoveAt(data.Count - 1);
+                data.Add(string.Join(" | ", times));
+                data.Add(string.Join(" | ", days));
 
-                    data.Add(string.Join(" and ", times));
-                    data.Add(string.Join(" and ", days));
-                    data.Add(cupo);
-
-                    if (data.Count != HEADER.Length) throw new Exception("Different sizes");
-                    var paired = HEADER.Zip(data, (s, i) => new { s, i })
-                            .ToDictionary(item => item.s, item => item.i);
-                    result.Add(SerializeClass(paired));
-                }
-                else // Tabla normal
-                {
-                    var nodes = item.SelectNodes("tr").FirstOrDefault() ?? throw new Exception("Node not found");
-                    var data = nodes.SelectNodes("td").Select(n => n.InnerHtml).ToArray();
-                    if (data.Length != HEADER.Length) throw new Exception("Different sizes");
-                    var paired = HEADER.Zip(data, (s, i) => new { s, i })
-                            .ToDictionary(item => item.s, item => item.i);
-                    result.Add(SerializeClass(paired));
-                }
+                if (data.Count != HEADER.Length) throw new Exception("Different sizes");
+                var paired = HEADER.Zip(data, (s, i) => new { s, i })
+                        .ToDictionary(item => item.s, item => item.i);
+                result.Add(SerializeClass(paired));
             }
             catch (Exception e)
             {
@@ -83,7 +64,7 @@ public partial class FIScrapper
     [GeneratedRegex("\\d\\d:\\d\\d")]
     private static partial Regex TimeRegex();
 
-    [GeneratedRegex("<\\w+>\\(\\*[\\w\\s\\D]+\\)</\\w+>|\\(\\w+\\)|<\\w+>|\\w+\\.")]
+    [GeneratedRegex(@"<\w+>\(\*[\w\s\D]+\)</\w+>|\(\w+\)|\(\w+\s\w+\)|<\w+>|\w+\.")]
     private static partial Regex NameRegex();
 
     [GeneratedRegex("(\\w{3},\\s\\w{3})|(^[A-Z]{1}\\w{2}$)")]
@@ -99,7 +80,7 @@ public partial class FIScrapper
             Dias = paired["Dias"],
             Gpo = int.Parse(paired["Gpo"]),
             Tipo = paired["Tipo"],
-            Vacantes = int.Parse(paired["Cupo"]),
+            Vacantes = int.Parse(paired["Vacantes"] ?? "0"),
             Horario = paired["Horario"]
         };
     }
