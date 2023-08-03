@@ -10,6 +10,6 @@
 		WindowStartupLocation="CenterScreen"
         x:Class="HorariosFI.App.Views.MainWindow"
         Icon="/Assets/avalonia-logo.ico"
-        Title="HorariosFI.App">
+        Title="Horarios Facultad de Ingeniería">
 	<views:MainView />
 </Window>

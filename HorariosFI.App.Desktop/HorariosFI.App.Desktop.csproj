@@ -9,6 +9,9 @@
 		<ApplicationManifest>app.manifest</ApplicationManifest>
 		<PublishSingleFile>true</PublishSingleFile>
 		<SelfContained>true</SelfContained>
+		<EnableCompresionSingleFile>true</EnableCompresionSingleFile>
+		<ApplicationIcon>..\HorariosFI.App\Assets\avalonia-logo.ico</ApplicationIcon>
+		<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
 	</PropertyGroup>
 
 	<ItemGroup>
