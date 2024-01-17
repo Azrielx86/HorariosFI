@@ -7,21 +7,23 @@ namespace HorariosFI.Core;
 
 public class MPScrapper
 {
-    private const string MP_URL = "https://www.misprofesores.com/Buscar?buscar=Profesores&q={0}";
-    private const string MP_LINK_XPATH = "//*[@id=\"___gcse_0\"]/div/div/div/div[5]/div[2]/div/div/div[1]/div[1]/div[1]/div[1]/div/a";
+    private const string MpUrl = "https://www.misprofesores.com/Buscar?buscar=Profesores&q={0}";
 
-    private const string GENERAL_GRADE_XPATH = "/html/body/div[1]/div[2]/div/div/div[2]/div[1]/div/div[1]/div/div/div";
+    private const string MpLinkXpath =
+        "//*[@id=\"___gcse_0\"]/div/div/div/div[5]/div[2]/div/div/div[1]/div[1]/div[1]/div[1]/div/a";
+
+    private const string GeneralGradeXpath = "/html/body/div[1]/div[2]/div/div/div[2]/div[1]/div/div[1]/div/div/div";
     //"//*[@id=\"mainContent\"]/div/div[2]/div[1]/div/div[1]/div/div/div";
 
-    private const string RECOMMEND_XPATH = "/html/body/div[1]/div[2]/div/div/div[2]/div[1]/div/div[2]/div[1]/div";
+    private const string RecommendXpath = "/html/body/div[1]/div[2]/div/div/div[2]/div[1]/div/div[2]/div[1]/div";
 
     //"//*[@id=\"mainContent\"]/div/div[2]/div[1]/div/div[2]/div[1]/div";
-    private const string DIFFICULTY_XPATH = "/html/body/div[1]/div[2]/div/div/div[2]/div[1]/div/div[2]/div[2]/div";
+    private const string DifficultyXpath = "/html/body/div[1]/div[2]/div/div/div[2]/div[1]/div/div[2]/div[2]/div";
 
     //"//*[@id=\"mainContent\"]/div/div[2]/div[1]/div/div[2]/div[2]/div";
-    private const int TIMEOUT = 3;
+    private const int Timeout = 3;
 
-    public async Task Run(IEnumerable<ClassModel> classes)
+    public static async Task Run(IEnumerable<ClassModel> classes)
     {
         await Task.Run(() =>
         {
@@ -35,14 +37,13 @@ public class MPScrapper
             var found = new Dictionary<string, ClassModel>();
             foreach (var classvar in classes)
             {
-                if (found.ContainsKey(classvar.Profesor!))
+                if (found.TryGetValue(classvar.Profesor!, out var value))
                 {
                     Console.WriteLine($"{classvar.Profesor} ya fue buscado.");
-                    var p = found[classvar.Profesor!];
-                    classvar.Grade = p.Grade;
-                    classvar.Difficult = p.Difficult;
-                    classvar.Recommend = p.Recommend;
-                    classvar.MisProfesoresUrl = p.MisProfesoresUrl;
+                    classvar.Grade = value.Grade;
+                    classvar.Difficult = value.Difficult;
+                    classvar.Recommend = value.Recommend;
+                    classvar.MisProfesoresUrl = value.MisProfesoresUrl;
                     continue;
                 }
 
@@ -50,10 +51,10 @@ public class MPScrapper
                 {
                     var sleep = Random.Shared.Next(500, 4000);
                     Thread.Sleep(sleep);
-                    var mpUrl = string.Format(MP_URL, classvar.Profesor);
+                    var mpUrl = string.Format(MpUrl, classvar.Profesor);
                     driver.Navigate().GoToUrl(mpUrl);
 
-                    var page = driver.FindElement(By.XPath(MP_LINK_XPATH), TIMEOUT) ?? throw new RobotDetectedException();
+                    var page = driver.FindElement(By.XPath(MpLinkXpath), Timeout) ?? throw new RobotDetectedException();
                     sleep = Random.Shared.Next(500, 4000);
                     Thread.Sleep(sleep);
                     page.Click();
@@ -61,9 +62,12 @@ public class MPScrapper
                     var handles = driver.WindowHandles;
                     driver.SwitchTo().Window(handles[1]);
 
-                    var generalGrade = driver.FindElement(By.XPath(GENERAL_GRADE_XPATH), TIMEOUT) ?? throw new Exception("No value");
-                    var difficulty = driver.FindElement(By.XPath(DIFFICULTY_XPATH), TIMEOUT) ?? throw new Exception("No value");
-                    var recommend = driver.FindElement(By.XPath(RECOMMEND_XPATH), TIMEOUT) ?? throw new Exception("No value");
+                    var generalGrade = driver.FindElement(By.XPath(GeneralGradeXpath), Timeout) ??
+                                       throw new Exception("No value");
+                    var difficulty = driver.FindElement(By.XPath(DifficultyXpath), Timeout) ??
+                                     throw new Exception("No value");
+                    var recommend = driver.FindElement(By.XPath(RecommendXpath), Timeout) ??
+                                    throw new Exception("No value");
 
                     classvar.Grade = double.Parse(generalGrade.Text);
                     classvar.Difficult = double.Parse(difficulty.Text);
@@ -75,7 +79,10 @@ public class MPScrapper
 
                     found.Add(classvar.Profesor!, classvar);
                 }
-                catch (RobotDetectedException rb) { throw rb; }
+                catch (RobotDetectedException)
+                {
+                    throw;
+                }
                 catch (Exception ex)
                 {
                     Console.BackgroundColor = ConsoleColor.Red;

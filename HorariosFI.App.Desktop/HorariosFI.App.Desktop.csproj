@@ -1,24 +1,34 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-	<PropertyGroup>
-		<OutputType>WinExe</OutputType>
-		<!--If you are willing to use Windows/MacOS native APIs you will need to create 3 projects.
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <!--If you are willing to use Windows/MacOS native APIs you will need to create 3 projects.
     One for Windows with net7.0-windows TFM, one for MacOS with net7.0-macos and one with net7.0 TFM for Linux.-->
-		<TargetFramework>net7.0</TargetFramework>
-		<Nullable>enable</Nullable>
-		<BuiltInComInteropSupport>true</BuiltInComInteropSupport>
-		<ApplicationManifest>app.manifest</ApplicationManifest>
-		<PublishSingleFile>true</PublishSingleFile>
-		<SelfContained>true</SelfContained>
-		<EnableCompresionSingleFile>true</EnableCompresionSingleFile>
-		<ApplicationIcon>..\HorariosFI.App\Assets\avalonia-logo.ico</ApplicationIcon>
-		<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
-	</PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+        <ApplicationManifest>app.manifest</ApplicationManifest>
+	
+        <PublishSingleFile Condition="'$(Configuration)'=='RELEASE'">true</PublishSingleFile>
+        <SelfContained Condition="'$(Configuration)'=='RELEASE'">true</SelfContained>
+        <EnableCompresionSingleFile Condition="'$(Configuration)'=='RELEASE'">true</EnableCompresionSingleFile>
+        <IncludeNativeLibrariesForSelfExtract Condition="'$(Configuration)'=='RELEASE'">true</IncludeNativeLibrariesForSelfExtract>
 
-	<ItemGroup>
-		<PackageReference Include="Avalonia.Desktop" Version="$(AvaloniaVersion)" />
-	</ItemGroup>
+        <!--		<PublishSingleFile>true</PublishSingleFile>-->
+        <!--		<SelfContained>true</SelfContained>-->
+        <!--		<EnableCompresionSingleFile>true</EnableCompresionSingleFile>-->
+        <!--		<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>-->
 
-	<ItemGroup>
-		<ProjectReference Include="..\HorariosFI.App\HorariosFI.App.csproj" />
-	</ItemGroup>
+        <ApplicationIcon>..\HorariosFI.App\Assets\avalonia-logo.ico</ApplicationIcon>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Avalonia.Desktop" Version="11.0.6"/>
+        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2"/>
+        <PackageReference Include="Semi.Avalonia" Version="11.0.1"/>
+        <PackageReference Include="Semi.Avalonia.DataGrid" Version="11.0.1.1"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\HorariosFI.App\HorariosFI.App.csproj"/>
+    </ItemGroup>
 </Project>

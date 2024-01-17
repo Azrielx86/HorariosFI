@@ -1,4 +1,7 @@
-﻿namespace HorariosFI.Core;
+﻿using System.Reflection;
+using HorariosFI.Core.Extensions;
+
+namespace HorariosFI.Core;
 
 public class ClassModel
 {
@@ -12,14 +15,31 @@ public class ClassModel
     public string? Dias { get; set; }
     public int Cupo { get; set; }
     public int Vacantes { get; set; }
+    public string? Salon { get; set; }
 
     // Para MisProfesores
-    public double Grade { get; set; }
+    public double? Grade { get; set; } = null;
 
-    public double Difficult { get; set; }
-    public double Recommend { get; set; }
-    public string? MisProfesoresUrl { get; set; }
+    public double? Difficult { get; set; } = null;
+    public double? Recommend { get; set; } = null;
+    public string? MisProfesoresUrl { get; set; } = null;
 
+    public static ClassModel CreateFromDictionary(IReadOnlyDictionary<string, string> data)
+    {
+        var obj = new ClassModel();
+        var type = obj.GetType();
+        foreach (var property in data)
+        {
+            var propertyInfo = type.GetProperty(property.Key.RemoveDiacritics());
+            if (propertyInfo is not null)
+                propertyInfo.SetValue(obj, Convert.ChangeType(property.Value, propertyInfo.PropertyType), null);
+            else
+                Console.WriteLine($"Error en la propiedad: {property.Key}");
+        }
+
+        return obj;
+    }
+    
     public override string ToString()
     {
         return $"{Gpo} - {Profesor}";

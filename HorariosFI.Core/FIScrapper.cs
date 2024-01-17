@@ -1,87 +1,98 @@
 ﻿using HorariosFI.Core.Extensions;
 using HtmlAgilityPack;
 using System.Text.RegularExpressions;
+using HorariosFI.Core.Exeptions;
 
 namespace HorariosFI.Core;
 
-public partial class FIScrapper
+public static partial class FiScrapper
 {
-    private const string FI_URL = "https://www.ssa.ingenieria.unam.mx/cj/tmp/programacion_horarios/{0}.html?";
-    private static readonly string[] days = { "Lun", "Mar", "Mie", "Jue", "Vie" };
-    private static readonly string[] HEADER = { "Clave", "Gpo", "Profesor", "Tipo", "Cupo", "Vacantes", "Horario", "Dias" };
+#if DEV
+    private const string FiUrl = "http://localhost:8000/{0}.html?";
+#else
+    private const string FiUrl = "https://www.ssa.ingenieria.unam.mx/cj/tmp/programacion_horarios/{0}.html?";
+#endif
+    private const string InfoUrl =
+        "https://www.dgae-siae.unam.mx/educacion/asignaturas.php?ref=asgxfrm&asg={0}&plt=0011";
 
-    public static async Task<(List<ClassModel>, IEnumerable<string>)> GetClassList(int class_code)
+    public static async Task<string?> GetClassName(int classCode)
     {
         var client = new HttpClient();
-        var response = await client.GetAsync(string.Format(FI_URL, class_code));
+        var response = await client.GetAsync(string.Format(InfoUrl, classCode));
         var content = await response.Content.ReadAsStringAsync();
         var document = new HtmlDocument();
         document.LoadHtml(content);
 
-        var tables = document.DocumentNode.SelectNodes("//tbody");
+        var nameNode = document.DocumentNode.Descendants(0).FirstOrDefault(n => n.HasClass("post-titulo"));
+        if (nameNode is null)
+            return null;
+
+        var name = CleanNameRegex().Replace(nameNode.InnerHtml, "");
+
+        return name.ToTitle();
+    }
+
+    public static async Task<List<ClassModel>> GetClassShcedules(int classCode)
+    {
+        var client = new HttpClient();
+        var response = await client.GetAsync(string.Format(FiUrl, classCode));
+        var content = await response.Content.ReadAsStringAsync();
+        var document = new HtmlDocument();
+        document.LoadHtml(content);
+
+        var tables = document.DocumentNode.SelectNodes("//table");
+        if (tables is null || tables.Count == 0)
+            throw new ClassNotFoundException();
 
         var result = new List<ClassModel>();
-        var errors = new List<string>();
-        if (tables is null || tables.Count == 0)
-        {
-            errors.Add($"Clase {class_code} no encontrada.");
-            return (result, errors);
-        }
 
-        foreach (var (item, index) in tables.WithIndex())
+        foreach (var table in tables)
         {
-            try
+            // Localización del header
+            var header = table.SelectNodes("tr")[1].SelectNodes("th").Select(n => n.InnerText).ToList();
+
+            // Selección de los demás elementos
+            var profNodes = table.SelectNodes("tbody").ToList();
+            // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
+            foreach (var profInfo in profNodes)
             {
-                var data = item.SelectNodes("tr")
-                                  .SelectMany(t => t.SelectNodes("td"))
-                                  .Select(t => t.InnerText)
-                                  .ToList();
-                if (data.Remove("L")) data[data.IndexOf("T")] = "T/L"; // Clases con lab incluido
+                var data = profInfo.SelectNodes("tr/td").Select(n => n.InnerText).ToList();
+                if (data.Remove("L")) data[data.IndexOf("T")] = "T/L";
                 var times = data.Where(s => TimeRegex().IsMatch(s)).ToArray();
                 var days = data.Where(s => DayRegex().IsMatch(s)).ToArray();
                 data.RemoveAll(s => times.Contains(s) || days.Contains(s));
 
-                data.Add(string.Join(" | ", times));
+                header.Remove("Días");
+                header.Add("Días");
                 data.Add(string.Join(" | ", days));
 
-                if (data.Count != HEADER.Length) throw new Exception("Different sizes");
-                var paired = HEADER.Zip(data, (s, i) => new { s, i })
-                        .ToDictionary(item => item.s, item => item.i);
-                result.Add(SerializeClass(paired));
-            }
-            catch (Exception e)
-            {
-                Console.Write(e.ToString());
-                errors.Add($"Falla al obtener: {item.InnerHtml}");
+                header.Remove("Horario");
+                header.Add("Horario");
+                data.Add(string.Join(" | ", times));
+
+                if (data.Count != header.Count) throw new Exception("Different sizes");
+                var paired = header.Zip(data, (s, i) => new { s, i })
+                    .ToDictionary(item => item.s, item => item.i);
+
+                paired["Profesor"] = NameRegex().Replace(paired["Profesor"], string.Empty);
+
+                var obj = ClassModel.CreateFromDictionary(paired);
+                result.Add(obj);
             }
         }
-#if DEBUG
-        result.ForEach(Console.WriteLine);
-#endif
-        return (result, errors);
+
+        return result;
     }
 
-    [GeneratedRegex("\\d\\d:\\d\\d")]
+    [GeneratedRegex(@"\d\d:\d\d")]
     private static partial Regex TimeRegex();
 
-    [GeneratedRegex(@"<\w+>\(\*[\w\s\D]+\)</\w+>|\(\w+\)|\(\w+\s\w+\)|<\w+>|\w+\.")]
+    [GeneratedRegex(@"<\w+>\(\*[\w\s\D]+\)</\w+>|\(\w+\)|\(\w+\s\w+\)|<\w+>|\w+\.|\s\(\*.+\)?")]
     private static partial Regex NameRegex();
 
-    [GeneratedRegex("(\\w{3},\\s\\w{3})|(^[A-Z]{1}\\w{2}$)")]
+    [GeneratedRegex(@"((\w{3},\s\w{3})|(^[A-Z]{1}\w{2}$))")]
     private static partial Regex DayRegex();
 
-    private static ClassModel SerializeClass(Dictionary<string, string> paired)
-    {
-        return new ClassModel()
-        {
-            Profesor = NameRegex().Replace(paired["Profesor"], "").Trim(),
-            Clave = int.Parse(paired["Clave"]),
-            Cupo = int.Parse(paired["Cupo"]),
-            Dias = paired["Dias"],
-            Gpo = int.Parse(paired["Gpo"]),
-            Tipo = paired["Tipo"],
-            Vacantes = int.Parse(paired["Vacantes"] ?? "0"),
-            Horario = paired["Horario"]
-        };
-    }
+    [GeneratedRegex(@"^\w+:\s\[\d+\]\s\-\s")]
+    private static partial Regex CleanNameRegex();
 }
