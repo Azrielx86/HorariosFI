@@ -4,11 +4,9 @@ Este programa filtra y busca a los profesores de la Facultad de Ingeniería en l
 página de MisProfesores con el objetivo de determinar que tan buenos son,
 cuantos lo recomiendan, y el nivel aproximado de dificultad, además de la
 información ya otorgada en la página de la facultad (¿Cuál no? Las encuestas de
-satisfacción no son públicas, deberian serlo para no tener que recurrir a estas
-cosas :P).
+satisfacción no son públicas, deberian serlo).
 
-Basado en una <a href="https://github.com/Azrielx86/FI_Horarios"
-target="_blank">versión anterior</a> escrita en Python. Esta nueva versión
+Basado en una [versión anterior](https://github.com/Azrielx86/FI_Horarios) escrita en Python. Esta nueva versión
 escrita en C# utiliza HtmlAgilityPack y Selenium para el web scapping,
 y Avalonia para la interfaz gráfica.
 
@@ -38,11 +36,6 @@ Por ahora solo es para agregar las materias que se quieran buscar, está pendien
 
 ![App Window](docs/window.png)
 
-## Motivación
-
-Malditasea FI, cambia a tus profes u obligalos a mejorar :P
-
 ## Problemas conocidos
 
 - No funciona en Linux :P
-- Detección de robot en MisProfesores
