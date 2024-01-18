@@ -47,12 +47,12 @@
             </Button>
         </StackPanel>
 
-
-        <!--Tabla
-		-->
-		<ProgressBar Grid.ColumnSpan="3" Grid.Column="0"
-                     Grid.Row="1"
-					 IsIndeterminate="{Binding Progreso}"></ProgressBar>
+        <ProgressBar Grid.ColumnSpan="3" Grid.Column="0"
+                     Value="{Binding ProgresoScrapMp}"
+                     ShowProgressText="True"
+                     IsVisible="{Binding Progreso}"
+                     Grid.Row="1">
+        </ProgressBar>
         <DataGrid Grid.Column="0" Grid.ColumnSpan="3"
                   Grid.Row="2"
                   ItemsSource="{Binding ClassCollection, Mode=OneWay}"
@@ -87,22 +87,7 @@
                         </Button>
                     </DataTemplate>
                 </DataGridTemplateColumn>
-                <!-- <DataGridTemplateColumn> -->
-                <!--     <DataTemplate DataType="models:InputClassModel"> -->
-                <!--         ~1~ ReSharper disable once Xaml.PossibleNullReferenceException @1@ -->
-                <!--         <Button -->
-                <!--             Command="{Binding $parent.((vm:MainViewModel)DataContext).ViewSchedulesCommand}"> -->
-                <!--             Buscar en MisProfesores -->
-                <!--         </Button> -->
-                <!--     </DataTemplate> -->
-                <!-- </DataGridTemplateColumn> -->
             </DataGrid.Columns>
         </DataGrid>
-
-        <!--
-		<Button Grid.ColumnSpan="3"
-				Grid.Row="4"
-				Command="{Binding Buscar}">Buscar</Button>
-		-->
     </Grid>
 </UserControl>

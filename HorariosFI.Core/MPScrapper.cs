@@ -5,7 +5,7 @@ using HorariosFI.Core.Exeptions;
 
 namespace HorariosFI.Core;
 
-public class MPScrapper
+public static class MpScrapper
 {
     private const string MpUrl = "https://www.misprofesores.com/Buscar?buscar=Profesores&q={0}";
 
@@ -23,7 +23,7 @@ public class MPScrapper
     //"//*[@id=\"mainContent\"]/div/div[2]/div[1]/div/div[2]/div[2]/div";
     private const int Timeout = 3;
 
-    public static async Task Run(IEnumerable<ClassModel> classes)
+    public static async Task Run(IList<ClassModel> classes, IProgress<int> progress)
     {
         await Task.Run(() =>
         {
@@ -35,8 +35,12 @@ public class MPScrapper
             using var driver = new ChromeDriver(chromeService, chromeOptions);
 
             var found = new Dictionary<string, ClassModel>();
-            foreach (var classvar in classes)
+            foreach (var (classvar, index) in classes.WithIndex())
             {
+                var p = index * 100 / classes.Count;
+                progress.Report(p);
+                
+                
                 if (found.TryGetValue(classvar.Profesor!, out var value))
                 {
                     Console.WriteLine($"{classvar.Profesor} ya fue buscado.");
