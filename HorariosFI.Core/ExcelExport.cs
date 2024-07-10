@@ -41,7 +41,7 @@ public partial class ExcelExport
         gray.Fill.SetPattern(PatternValues.Solid, SColor.LightGray, SColor.White);
 
 
-        var wsName = $"{clave}-{ReplaceSpaces().Replace(name, " ")}"[..25];
+        var wsName = $"{clave}-{ReplaceSpaces().Replace(name, " ")}"[..(name.Length > 25 ? 25 : name.Length)];
         if (document.GetWorksheetNames().Contains(wsName))
             return;
         document.AddWorksheet(wsName);
