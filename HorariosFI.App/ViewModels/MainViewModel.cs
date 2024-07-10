@@ -16,6 +16,7 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty] private ObservableCollection<InputClassModel> _classCollection = [];
     [ObservableProperty] private bool _progreso;
     [ObservableProperty] private int _progresoScrapMp;
+    [ObservableProperty] private bool _openSeleniumWindow;
 
     public MainViewModel()
     {
@@ -71,7 +72,7 @@ public partial class MainViewModel : ObservableObject
             }
 
             item.Horarios ??= await FiScrapper.GetClassShcedules(item.Clave);
-            await MpScrapper.Run(item.Horarios!, new Progress<int>(p => ProgresoScrapMp = p));
+            await MpScrapper.Run(item.Horarios!, new Progress<int>(p => ProgresoScrapMp = p), OpenSeleniumWindow);
             ExcelExport.Export(item.Clave, item.Nombre ?? "Unknown", item.Horarios);
             ClassCollection.Remove(item);
         }

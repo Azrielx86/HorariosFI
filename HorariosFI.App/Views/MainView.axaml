@@ -89,5 +89,13 @@
                 </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
+        <StackPanel Grid.Row="3" Grid.Column="0"
+                    Grid.ColumnSpan="2"
+                    VerticalAlignment="Center"
+                    Orientation="Horizontal"
+                    >
+            <CheckBox IsChecked="{Binding OpenSeleniumWindow}"></CheckBox>
+            <Label>Open Selenium Window</Label>
+        </StackPanel>
     </Grid>
 </UserControl>

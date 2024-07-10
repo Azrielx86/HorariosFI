@@ -23,13 +23,16 @@ public static class MpScrapper
     //"//*[@id=\"mainContent\"]/div/div[2]/div[1]/div/div[2]/div[2]/div";
     private const int Timeout = 3;
 
-    public static async Task Run(IList<ClassModel> classes, IProgress<int> progress)
+    public static async Task Run(IList<ClassModel> classes, IProgress<int> progress, bool showWindow = false)
     {
         await Task.Run(() =>
         {
             var chromeOptions = new ChromeOptions();
-            chromeOptions.AddArgument("log-level=3");
-            chromeOptions.AddArgument("headless");
+            if (!showWindow)
+            {
+                chromeOptions.AddArgument("log-level=3");
+                chromeOptions.AddArgument("headless");
+            }
             var chromeService = ChromeDriverService.CreateDefaultService();
             chromeService.HideCommandPromptWindow = true;
             using var driver = new ChromeDriver(chromeService, chromeOptions);
