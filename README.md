@@ -10,8 +10,10 @@ Basado en una [versión anterior](https://github.com/Azrielx86/FI_Horarios) escr
 escrita en C# utiliza HtmlAgilityPack y Selenium para el web scapping,
 y Avalonia para la interfaz gráfica.
 
-**NO DEBE DE TOMARSE COMO UNA VERDAD ABSOULTA, ES ÚNICAMENTE UNA ESTIMACIÓN, Y
-ES RESPONSABILIDAD DE QUIÉN LO USA.**
+
+> [!WARNING]
+  NO DEBE DE TOMARSE COMO UNA VERDAD ABSOULTA, ES ÚNICAMENTE UNA ESTIMACIÓN, Y
+  ES RESPONSABILIDAD DE QUIÉN LO USA.
 
 ## Ejemplo de la tabla
 
