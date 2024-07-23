@@ -38,6 +38,4 @@ Por ahora solo es para agregar las materias que se quieran buscar, está pendien
 
 ![App Window](docs/window.png)
 
-## Problemas conocidos
 
-- No funciona en Linux :P

@@ -1,8 +1,7 @@
-﻿using System.Text.RegularExpressions;
-using DocumentFormat.OpenXml.Spreadsheet;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.RegularExpressions;
+using ClosedXML.Excel;
 using HorariosFI.Core.Extensions;
-using SpreadsheetLight;
-using SColor = System.Drawing.Color;
 
 namespace HorariosFI.Core;
 
@@ -26,194 +25,77 @@ public partial class ExcelExport
 {
     private const string Filename = "Horarios_FI.xlsx";
 
+    [SuppressMessage("ReSharper", "SpecifyACultureInStringConversionExplicitly")]
     public static void Export(int clave, string name, List<ClassModel>? classes)
     {
         if (classes is null) return;
-        using var document = File.Exists(Filename) ? new SLDocument(Filename) : new SLDocument();
 
-        var red = document.CreateStyle();
-        red.Fill.SetPattern(PatternValues.Solid, SColor.LightCoral, SColor.White);
-        var yellow = document.CreateStyle();
-        yellow.Fill.SetPattern(PatternValues.Solid, SColor.Khaki, SColor.White);
-        var green = document.CreateStyle();
-        green.Fill.SetPattern(PatternValues.Solid, SColor.PaleGreen, SColor.White);
-        var gray = document.CreateStyle();
-        gray.Fill.SetPattern(PatternValues.Solid, SColor.LightGray, SColor.White);
+        var document = File.Exists(Filename) ? new XLWorkbook(Filename) : new XLWorkbook();
 
+        // var wsName = $"{clave}-{ReplaceSpaces().Replace(name, " ")}"[..(name.Length > 25 ? 25 : name.Length)];
+        var wsName = $"{clave}-{ReplaceSpaces().Replace(name, " ")}"[..(name.Length > 31 ? 31 : name.Length)];
 
-        var wsName = $"{clave}-{ReplaceSpaces().Replace(name, " ")}"[..(name.Length > 25 ? 25 : name.Length)];
-        if (document.GetWorksheetNames().Contains(wsName))
-            return;
-        document.AddWorksheet(wsName);
+        if (!document.TryGetWorksheet(wsName, out var worksheet))
+            worksheet = document.AddWorksheet(wsName);
 
-        document.SetCellValue(1, (int)PropIndex.Clave, "Clave");
-        document.SetCellValue(1, (int)PropIndex.Group, "Grupo");
-        document.SetCellValue(1, (int)PropIndex.Name, "Nombre");
-        document.SetCellValue(1, (int)PropIndex.Grade, "Calificación");
-        document.SetCellValue(1, (int)PropIndex.Difficult, "Dificultad");
-        document.SetCellValue(1, (int)PropIndex.Recommend, "Recomendado");
-        document.SetCellValue(1, (int)PropIndex.Tipo, "Tipo");
-        document.SetCellValue(1, (int)PropIndex.Horario, "Horarios");
-        document.SetCellValue(1, (int)PropIndex.Dias, "Dias");
-        document.SetCellValue(1, (int)PropIndex.Cupo, "Cupo");
-        document.SetCellValue(1, (int)PropIndex.MpUrl, "Link");
+        worksheet.Cell(1, (int)PropIndex.Clave).SetValue("Clave");
+        worksheet.Cell(1, (int)PropIndex.Group).SetValue("Grupo");
+        worksheet.Cell(1, (int)PropIndex.Name).SetValue("Nombre");
+        worksheet.Cell(1, (int)PropIndex.Grade).SetValue("Grado");
+        worksheet.Cell(1, (int)PropIndex.Difficult).SetValue("Dificultad");
+        worksheet.Cell(1, (int)PropIndex.Recommend).SetValue("Recomendado");
+        worksheet.Cell(1, (int)PropIndex.Tipo).SetValue("Tipo");
+        worksheet.Cell(1, (int)PropIndex.Horario).SetValue("Horario");
+        worksheet.Cell(1, (int)PropIndex.Dias).SetValue("Días");
+        worksheet.Cell(1, (int)PropIndex.Cupo).SetValue("Cupo");
+        worksheet.Cell(1, (int)PropIndex.MpUrl).SetValue("Link");
 
-        document.SetColumnWidth((int)PropIndex.Name, 30);
+        worksheet.Column((int)PropIndex.Name).Width = 30;
+        worksheet.Column((int)PropIndex.MpUrl).Width = 60;
 
         foreach (var (item, index) in classes.WithIndex())
         {
-            document.SetCellValue(index + 2, (int)PropIndex.Clave, item.Clave);
-            document.SetCellValue(index + 2, (int)PropIndex.Group, item.Gpo);
-            document.SetCellValue(index + 2, (int)PropIndex.Name, item.Profesor);
-            document.SetCellValue(index + 2, (int)PropIndex.Grade, item.Grade.ToString() ?? "NA");
-            document.SetCellValue(index + 2, (int)PropIndex.Difficult, item.Difficult.ToString() ?? "NA");
-            document.SetCellValue(index + 2, (int)PropIndex.Recommend, item.Recommend.ToString() ?? "NA");
-            document.SetCellValue(index + 2, (int)PropIndex.Tipo, item.Tipo);
-            document.SetCellValue(index + 2, (int)PropIndex.Horario, item.Horario);
-            document.SetCellValue(index + 2, (int)PropIndex.Cupo, item.Cupo);
-            document.SetCellValue(index + 2, (int)PropIndex.Dias, item.Dias);
-            document.SetCellValue(index + 2, (int)PropIndex.MpUrl, item.MisProfesoresUrl ?? "NA");
+            worksheet.Cell(index + 2, (int)PropIndex.Clave).SetValue(item.Clave.ToString());
+            worksheet.Cell(index + 2, (int)PropIndex.Group).SetValue(item.Gpo.ToString());
+            worksheet.Cell(index + 2, (int)PropIndex.Name).SetValue(item.Profesor);
+            worksheet.Cell(index + 2, (int)PropIndex.Tipo).SetValue(item.Tipo);
+            worksheet.Cell(index + 2, (int)PropIndex.Horario).SetValue(item.Horario);
+            worksheet.Cell(index + 2, (int)PropIndex.Dias).SetValue(item.Dias);
+            worksheet.Cell(index + 2, (int)PropIndex.Cupo).SetValue(item.Cupo.ToString());
 
-            switch (item.Grade)
-            {
-                // Grade
-                case >= 7:
-                    document.SetCellStyle(index + 2, (int)PropIndex.Grade, green);
-                    break;
-                case >= 5 and < 7:
-                    document.SetCellStyle(index + 2, (int)PropIndex.Grade, yellow);
-                    break;
-                default:
-                    document.SetCellStyle(index + 2, (int)PropIndex.Grade, red);
-                    break;
-            }
+            // Special Cells
+            worksheet.Cell(index + 2, (int)PropIndex.MpUrl).SetValue(item.MisProfesoresUrl ?? "NA");
 
-            switch (item.Difficult)
-            {
-                // Difficult
-                case <= 2.5:
-                    document.SetCellStyle(index + 2, (int)PropIndex.Difficult, green);
-                    break;
-                case <= 4 and > 2.5:
-                    document.SetCellStyle(index + 2, (int)PropIndex.Difficult, yellow);
-                    break;
-                default:
-                    document.SetCellStyle(index + 2, (int)PropIndex.Difficult, red);
-                    break;
-            }
+            var gradeCell = worksheet.Cell(index + 2, (int)PropIndex.Grade);
+            gradeCell.Style.Fill.BackgroundColor = item.Grade == null ? XLColor.LightGray : item.Grade <= 5 ? XLColor.LightCoral : item.Grade <= 7 ? XLColor.Khaki : XLColor.LightGreen;
+            gradeCell.Value = TryParseValue(item.Grade, "NA");
 
-            switch (item.Recommend)
-            {
-                // Recommend
-                case >= 70:
-                    document.SetCellStyle(index + 2, (int)PropIndex.Recommend, green);
-                    break;
-                case >= 50 and < 70:
-                    document.SetCellStyle(index + 2, (int)PropIndex.Recommend, yellow);
-                    break;
-                default:
-                    document.SetCellStyle(index + 2, (int)PropIndex.Recommend, red);
-                    break;
-            }
+            var difCell = worksheet.Cell(index + 2, (int)PropIndex.Difficult);
+            difCell.Style.Fill.BackgroundColor = item.Difficult == null ? XLColor.LightGray : item.Difficult >= 4 ? XLColor.LightCoral : item.Difficult >= 2.5 ? XLColor.Khaki : XLColor.LightGreen;
+            difCell.Value = TryParseValue(item.Difficult, "NA");
+
+            var recCell = worksheet.Cell(index + 2, (int)PropIndex.Recommend);
+            recCell.Style.Fill.BackgroundColor = item.Recommend == null ? XLColor.LightGray : item.Recommend <= 50 ? XLColor.LightCoral : item.Recommend <= 70 ? XLColor.Khaki : XLColor.LightGreen;
+            recCell.Value = TryParseValue(item.Recommend, "NA");
         }
 
         document.SaveAs(Filename);
     }
 
-    public static void ExportAll(Dictionary<string, IEnumerable<ClassModel>>? classes)
+    private static string TryParseValue<T>(T? value, string @default)
     {
-        if (classes is null) return;
-        using var document = File.Exists(Filename) ? new SLDocument(Filename) : new SLDocument();
-
-        var red = document.CreateStyle();
-        red.Fill.SetPattern(PatternValues.Solid, SColor.LightCoral, SColor.White);
-        var yellow = document.CreateStyle();
-        yellow.Fill.SetPattern(PatternValues.Solid, SColor.Khaki, SColor.White);
-        var green = document.CreateStyle();
-        green.Fill.SetPattern(PatternValues.Solid, SColor.PaleGreen, SColor.White);
-        var gray = document.CreateStyle();
-        gray.Fill.SetPattern(PatternValues.Solid, SColor.LightGray, SColor.White);
-
-        foreach (var classItem in classes)
+        string result;
+        try
         {
-            var wsName = $"{classItem.Key}";
-            if (document.GetWorksheetNames().Contains(wsName))
-                continue;
-            document.AddWorksheet(wsName);
-
-            document.SetCellValue(1, (int)PropIndex.Clave, "Clave");
-            document.SetCellValue(1, (int)PropIndex.Group, "Grupo");
-            document.SetCellValue(1, (int)PropIndex.Name, "Nombre");
-            document.SetCellValue(1, (int)PropIndex.Grade, "Calificación");
-            document.SetCellValue(1, (int)PropIndex.Difficult, "Dificultad");
-            document.SetCellValue(1, (int)PropIndex.Recommend, "Recomendado");
-            document.SetCellValue(1, (int)PropIndex.Tipo, "Tipo");
-            document.SetCellValue(1, (int)PropIndex.Horario, "Horarios");
-            document.SetCellValue(1, (int)PropIndex.Dias, "Dias");
-            document.SetCellValue(1, (int)PropIndex.Cupo, "Cupo");
-            document.SetCellValue(1, (int)PropIndex.MpUrl, "Link");
-
-            document.SetColumnWidth((int)PropIndex.Name, 30);
-
-            foreach (var (item, index) in classItem.Value.WithIndex())
-            {
-                document.SetCellValue(index + 2, (int)PropIndex.Clave, item.Clave);
-                document.SetCellValue(index + 2, (int)PropIndex.Group, item.Gpo);
-                document.SetCellValue(index + 2, (int)PropIndex.Name, item.Profesor);
-                document.SetCellValue(index + 2, (int)PropIndex.Grade, item.Grade.ToString() ?? "NA");
-                document.SetCellValue(index + 2, (int)PropIndex.Difficult, item.Difficult.ToString() ?? "NA");
-                document.SetCellValue(index + 2, (int)PropIndex.Recommend, item.Recommend.ToString() ?? "NA");
-                document.SetCellValue(index + 2, (int)PropIndex.Tipo, item.Tipo);
-                document.SetCellValue(index + 2, (int)PropIndex.Horario, item.Horario);
-                document.SetCellValue(index + 2, (int)PropIndex.Cupo, item.Cupo);
-                document.SetCellValue(index + 2, (int)PropIndex.Dias, item.Dias);
-                document.SetCellValue(index + 2, (int)PropIndex.MpUrl, item.MisProfesoresUrl ?? "NA");
-
-                switch (item.Grade)
-                {
-                    // Grade
-                    case >= 7:
-                        document.SetCellStyle(index + 2, (int)PropIndex.Grade, green);
-                        break;
-                    case >= 5 and < 7:
-                        document.SetCellStyle(index + 2, (int)PropIndex.Grade, yellow);
-                        break;
-                    default:
-                        document.SetCellStyle(index + 2, (int)PropIndex.Grade, red);
-                        break;
-                }
-
-                switch (item.Difficult)
-                {
-                    // Difficult
-                    case <= 2.5:
-                        document.SetCellStyle(index + 2, (int)PropIndex.Difficult, green);
-                        break;
-                    case <= 4 and > 2.5:
-                        document.SetCellStyle(index + 2, (int)PropIndex.Difficult, yellow);
-                        break;
-                    default:
-                        document.SetCellStyle(index + 2, (int)PropIndex.Difficult, red);
-                        break;
-                }
-
-                switch (item.Recommend)
-                {
-                    // Recommend
-                    case >= 70:
-                        document.SetCellStyle(index + 2, (int)PropIndex.Recommend, green);
-                        break;
-                    case >= 50 and < 70:
-                        document.SetCellStyle(index + 2, (int)PropIndex.Recommend, yellow);
-                        break;
-                    default:
-                        document.SetCellStyle(index + 2, (int)PropIndex.Recommend, red);
-                        break;
-                }
-            }
+            if (value is null) throw new Exception();
+            result = value.ToString() ?? @default;
+        }
+        catch (Exception)
+        {
+            result = @default;
         }
 
-        document.SaveAs(Filename);
+        return result;
     }
 
     [GeneratedRegex(@"\s+")]
