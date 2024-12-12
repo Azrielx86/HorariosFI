@@ -33,7 +33,7 @@ public partial class ExcelExport
         var document = File.Exists(Filename) ? new XLWorkbook(Filename) : new XLWorkbook();
 
         // var wsName = $"{clave}-{ReplaceSpaces().Replace(name, " ")}"[..(name.Length > 25 ? 25 : name.Length)];
-        var wsName = $"{clave}-{ReplaceSpaces().Replace(name, " ")}"[..(name.Length > 31 ? 31 : name.Length)];
+        var wsName = $"{clave}-{ReplaceSpaces().Replace(name, " ")}"[..(name.Length > 31 ? 31 : name.Length)].Replace(":", string.Empty);
 
         if (!document.TryGetWorksheet(wsName, out var worksheet))
             worksheet = document.AddWorksheet(wsName);
