@@ -7,12 +7,15 @@
         <Nullable>enable</Nullable>
         <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
         <ApplicationManifest>app.manifest</ApplicationManifest>
-	
+
         <PublishSingleFile Condition="'$(Configuration)'=='RELEASE'">true</PublishSingleFile>
         <SelfContained Condition="'$(Configuration)'=='RELEASE'">true</SelfContained>
         <EnableCompresionSingleFile Condition="'$(Configuration)'=='RELEASE'">true</EnableCompresionSingleFile>
         <IncludeNativeLibrariesForSelfExtract Condition="'$(Configuration)'=='RELEASE'">true</IncludeNativeLibrariesForSelfExtract>
-
+        
+        <AssemblyName>HorariosFI</AssemblyName>
+        <AssemblyVersion>1.1</AssemblyVersion>
+        
         <ApplicationIcon>..\HorariosFI.App\Assets\avalonia-logo.ico</ApplicationIcon>
     </PropertyGroup>
 

@@ -7,7 +7,7 @@ namespace HorariosFI.Core;
 
 public static class MpScrapper
 {
-    private const string MpUrl = "https://www.misprofesores.com/Buscar?buscar=Profesores&q={0}";
+    private const string MpUrl = "http://www.misprofesores.com/Buscar?buscar=Profesores&q={0}";
 
     private const string MpLinkXpath =
         "//*[@id=\"___gcse_0\"]/div/div/div/div[5]/div[2]/div/div/div[1]/div[1]/div[1]/div[1]/div/a";
@@ -23,16 +23,19 @@ public static class MpScrapper
     //"//*[@id=\"mainContent\"]/div/div[2]/div[1]/div/div[2]/div[2]/div";
     private const int Timeout = 3;
 
+
     public static async Task Run(IList<ClassModel> classes, IProgress<int> progress, bool showWindow = false)
     {
         await Task.Run(() =>
         {
             var chromeOptions = new ChromeOptions();
+            chromeOptions.AddArgument("--ignore-certificate-errors");
             if (!showWindow)
             {
                 chromeOptions.AddArgument("log-level=3");
                 chromeOptions.AddArgument("headless");
             }
+
             var chromeService = ChromeDriverService.CreateDefaultService();
             chromeService.HideCommandPromptWindow = true;
             using var driver = new ChromeDriver(chromeService, chromeOptions);
@@ -42,8 +45,7 @@ public static class MpScrapper
             {
                 var p = index * 100 / classes.Count;
                 progress.Report(p);
-                
-                
+
                 if (found.TryGetValue(classvar.Profesor!, out var value))
                 {
                     Console.WriteLine($"{classvar.Profesor} ya fue buscado.");

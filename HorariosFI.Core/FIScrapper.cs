@@ -7,7 +7,7 @@ namespace HorariosFI.Core;
 
 public static partial class FiScrapper
 {
-#if DEV
+#if DEBUG
     private const string FiUrl = "http://localhost:8000/{0}.html?";
 #else
     private const string FiUrl = "https://www.ssa.ingenieria.unam.mx/cj/tmp/programacion_horarios/{0}.html?";
