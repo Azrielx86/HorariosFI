@@ -3,17 +3,15 @@
 Este programa filtra y busca a los profesores de la Facultad de Ingeniería en la
 página de MisProfesores con el objetivo de determinar que tan buenos son,
 cuantos lo recomiendan, y el nivel aproximado de dificultad, además de la
-información ya otorgada en la página de la facultad (¿Cuál no? Las encuestas de
-satisfacción no son públicas, deberian serlo).
+información ya otorgada en la página de la facultad.
 
 Basado en una [versión anterior](https://github.com/Azrielx86/FI_Horarios) escrita en Python. Esta nueva versión
-escrita en C# utiliza HtmlAgilityPack y Selenium para el web scapping,
-y Avalonia para la interfaz gráfica.
+escrita en C# utiliza HtmlAgilityPack y Selenium para el web scapping, Avalonia para la interfaz gráfica, 
+así como ClosedXML para generar el archivo de Excel.
 
-
-> [!WARNING]
-  NO DEBE DE TOMARSE COMO UNA VERDAD ABSOULTA, ES ÚNICAMENTE UNA ESTIMACIÓN, Y
-  ES RESPONSABILIDAD DE QUIÉN LO USA.
+>[!CAUTION]
+>NO DEBE DE TOMARSE COMO UNA VERDAD ABSOULTA, ES ÚNICAMENTE UNA ESTIMACIÓN, Y
+>ES RESPONSABILIDAD DE QUIÉN LO USA.
 
 ## Ejemplo de la tabla
 
@@ -38,4 +36,5 @@ Por ahora solo es para agregar las materias que se quieran buscar, está pendien
 
 ![App Window](docs/window.png)
 
-
+>[!NOTE]
+>No me hago responsable del uso que se le de a este programa.
