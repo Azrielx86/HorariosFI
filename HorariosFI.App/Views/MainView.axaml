@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:HorariosFI.App.ViewModels"
              xmlns:models="clr-namespace:HorariosFI.App.Models"
+             xmlns:i="https://github.com/projektanker/icons.avalonia"
              mc:Ignorable="d" d:DesignWidth="720"
              d:DesignHeight="450"
              x:Class="HorariosFI.App.Views.MainView"
@@ -39,11 +40,23 @@
                 Text="{Binding Clave}">
             </TextBox>
             <Button
-                Margin="10,0,10,5"
+                Margin="0,0,10,5"
                 VerticalAlignment="Center"
                 HorizontalAlignment="Center"
                 Command="{Binding AddClassCommand}">
-                Agregar
+                <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                    <i:Icon Value="mdi-plus"></i:Icon>
+                    <TextBlock>Agregar</TextBlock>
+                </StackPanel>
+            </Button>
+            <Button
+                Margin="0,0,0,5"
+                VerticalAlignment="Center"
+                HorizontalAlignment="Center">
+                <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                    <i:Icon Value="mdi-content-save-outline"></i:Icon>
+                    <TextBlock>Materias consultadas</TextBlock>
+                </StackPanel>
             </Button>
         </StackPanel>
 
@@ -83,7 +96,10 @@
                         <Button
                             Command="{Binding $parent.((vm:MainViewModel)DataContext).ViewSchedulesCommand}"
                             CommandParameter="{Binding Clave}">
-                            Buscar y Exportar
+                            <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                                <i:Icon Value="mdi-magnify"></i:Icon>
+                                <TextBlock>Buscar y exportar</TextBlock>
+                            </StackPanel>
                         </Button>
                     </DataTemplate>
                 </DataGridTemplateColumn>
@@ -92,10 +108,18 @@
         <StackPanel Grid.Row="3" Grid.Column="0"
                     Grid.ColumnSpan="2"
                     VerticalAlignment="Center"
-                    Orientation="Horizontal"
-                    >
-            <CheckBox IsChecked="{Binding OpenSeleniumWindow}"></CheckBox>
-            <Label>Open Selenium Window</Label>
+                    HorizontalAlignment="Center"
+                    Orientation="Horizontal">
+            <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                <CheckBox IsChecked="{Binding OpenSeleniumWindow}"></CheckBox>
+                <Label>Open Selenium Window</Label>
+            </StackPanel>
+            <Button>
+                <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                    <i:Icon Value="mdi-information-outline"></i:Icon>
+                    <TextBlock>About</TextBlock>
+                </StackPanel>
+            </Button>
         </StackPanel>
     </Grid>
 </UserControl>
