@@ -60,11 +60,16 @@ public static partial class FiScrapper
                 if (data.Remove("L")) data[data.IndexOf("T")] = "T/L";
                 var times = data.Where(s => TimeRegex().IsMatch(s)).ToArray();
                 var days = data.Where(s => DayRegex().IsMatch(s)).ToArray();
-                data.RemoveAll(s => times.Contains(s) || days.Contains(s));
+                var classrooms = data.Where(s => ClassrooomRegex().IsMatch(s)).ToArray();
+                data.RemoveAll(s => times.Contains(s) || days.Contains(s) || classrooms.Contains(s));
 
                 header.Remove("Días");
                 header.Add("Días");
                 data.Add(string.Join(" | ", days));
+
+                header.Remove("Salón");
+                header.Add("Salón");
+                data.Add(string.Join(" | ", classrooms));
 
                 header.Remove("Horario");
                 header.Add("Horario");
@@ -95,4 +100,7 @@ public static partial class FiScrapper
 
     [GeneratedRegex(@"^\w+:\s\[\d+\]\s\-\s")]
     private static partial Regex CleanNameRegex();
+
+    [GeneratedRegex(@"[A-Z]\d{3}")]
+    private static partial Regex ClassrooomRegex();
 }
