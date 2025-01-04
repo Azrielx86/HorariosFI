@@ -2,7 +2,7 @@ using HorariosFI.Core;
 
 namespace HorariosFI.Test;
 
-public class ExcelExportTest
+public class SpreadSheetExporterTest
 {
     [SetUp]
     public void Setup()
@@ -32,7 +32,8 @@ public class ExcelExportTest
             }
         };
 
-        ExcelExport.Export(119, "Null Values Test", clases);
+        var exporter = new SpreadSheetExporter($"{nameof(NullInsertsTest)}.xlsx");
+        exporter.Export(119, "Null Values Test", clases);
     }
 
     [Test]
@@ -65,6 +66,7 @@ public class ExcelExportTest
             clases.Add(c);
         }
 
-        ExcelExport.Export(119, "Value Ranges Test", clases);
+        var exporter = new SpreadSheetExporter($"{nameof(ValueRangesTest)}.xlsx");
+        exporter.Export(119, "Value Ranges Test", clases);
     }
 }

@@ -7,6 +7,8 @@ namespace HorariosFI.Core;
 
 public enum PropIndex
 {
+    // Do not remove lol.
+    // ReSharper disable once UnusedMember.Global
     Ignore,
     Clave,
     Group,
@@ -21,19 +23,16 @@ public enum PropIndex
     MpUrl,
 }
 
-public partial class ExcelExport
+public partial class SpreadSheetExporter(string filename = "Horarios_FI.xlsx")
 {
-    private const string Filename = "Horarios_FI.xlsx";
-
     [SuppressMessage("ReSharper", "SpecifyACultureInStringConversionExplicitly")]
-    public static void Export(int clave, string name, List<ClassModel>? classes)
+    public void Export(int classCode, string name, List<ClassModel>? classes)
     {
         if (classes is null) return;
 
-        var document = File.Exists(Filename) ? new XLWorkbook(Filename) : new XLWorkbook();
+        var document = File.Exists(filename) ? new XLWorkbook(filename) : new XLWorkbook();
 
-        // var wsName = $"{clave}-{ReplaceSpaces().Replace(name, " ")}"[..(name.Length > 25 ? 25 : name.Length)];
-        var wsName = $"{clave}-{ReplaceSpaces().Replace(name, " ")}"[..(name.Length > 31 ? 31 : name.Length)].Replace(":", string.Empty);
+        var wsName = $"{classCode}-{ReplaceSpaces().Replace(name, " ")}"[..(name.Length > 31 ? 31 : name.Length)].Replace(":", string.Empty);
 
         if (!document.TryGetWorksheet(wsName, out var worksheet))
             worksheet = document.AddWorksheet(wsName);
@@ -79,7 +78,7 @@ public partial class ExcelExport
             recCell.Value = TryParseValue(item.Recommend, "NA");
         }
 
-        document.SaveAs(Filename);
+        document.SaveAs(filename);
     }
 
     private static string TryParseValue<T>(T? value, string @default)

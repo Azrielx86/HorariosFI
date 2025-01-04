@@ -48,7 +48,6 @@ public static class MpScrapper
 
                 if (found.TryGetValue(classvar.Profesor!, out var value))
                 {
-                    Console.WriteLine($"{classvar.Profesor} ya fue buscado.");
                     classvar.Grade = value.Grade;
                     classvar.Difficult = value.Difficult;
                     classvar.Recommend = value.Recommend;
@@ -83,20 +82,7 @@ public static class MpScrapper
                     classvar.Recommend = double.Parse(recommend.Text.Replace("%", ""));
                     classvar.MisProfesoresUrl = driver.Url;
 
-                    Console.WriteLine(classvar.Profesor);
-                    Console.WriteLine($"Grade: {generalGrade}\nDifficulty: {difficulty}\nRecommend: {recommend}");
-
                     found.Add(classvar.Profesor!, classvar);
-                }
-                catch (RobotDetectedException)
-                {
-                    throw;
-                }
-                catch (Exception ex)
-                {
-                    Console.BackgroundColor = ConsoleColor.Red;
-                    Console.WriteLine(ex);
-                    Console.ResetColor();
                 }
                 finally
                 {

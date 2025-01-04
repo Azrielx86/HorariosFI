@@ -7,6 +7,18 @@ namespace HorariosFI.Core;
 
 public static partial class FiScrapper
 {
+    /*
+     * For development purposes and to no do too many requests to the faculty page.
+     * You can get the schedules manually with `curl` and save it with the format <class_code>.html
+     * For example, in a example directory
+     * .
+     * |-- 119.html
+     * |-- 1590.html
+     *
+     * And then you can start a local server with python using the following command:
+     * 
+     *      python -m http.server 8000
+     */
 #if DEBUG
     private const string FiUrl = "http://localhost:8000/{0}.html?";
 #else
@@ -15,6 +27,11 @@ public static partial class FiScrapper
     private const string InfoUrl =
         "https://www.dgae-siae.unam.mx/educacion/asignaturas.php?ref=asgxfrm&asg={0}&plt=0011";
 
+    /// <summary>
+    /// Returns the class name doing a search in the DGAE page.
+    /// </summary>
+    /// <param name="classCode">Code given in the career curriculum</param>
+    /// <returns>String with the class name if exists, else null</returns>
     public static async Task<string?> GetClassName(int classCode)
     {
         var client = new HttpClient();
@@ -32,6 +49,14 @@ public static partial class FiScrapper
         return name.ToTitle();
     }
 
+    /// <summary>
+    /// Gets all the schedules from the faculty page, using the url which returns a table with all the data,
+    /// whithout interacting with the page.
+    /// </summary>
+    /// <param name="classCode">Code given in the career curriculum</param>
+    /// <returns>List with the data parsed in <see cref="ClassModel"/> objects</returns>
+    /// <exception cref="ClassNotFoundException">Thrown by a incorrect class code</exception>
+    /// <exception cref="FiScrapperException">Thrown when incorrect data is scraped</exception>
     public static async Task<List<ClassModel>> GetClassShcedules(int classCode)
     {
         var client = new HttpClient();
@@ -42,14 +67,17 @@ public static partial class FiScrapper
 
         var tables = document.DocumentNode.SelectNodes("//table");
         if (tables is null || tables.Count == 0)
-            throw new ClassNotFoundException();
+            throw new ClassNotFoundException(classCode);
 
         var result = new List<ClassModel>();
 
         foreach (var table in tables)
         {
             // Localización del header
-            var header = table.SelectNodes("tr")[1].SelectNodes("th").Select(n => n.InnerText).ToList();
+            var header = table.SelectNodes("tr")[1]
+                .SelectNodes("th")
+                .Select(n => n.InnerText)
+                .ToList();
 
             // Selección de los demás elementos
             var profNodes = table.SelectNodes("tbody").ToList();
@@ -58,9 +86,9 @@ public static partial class FiScrapper
             {
                 var data = profInfo.SelectNodes("tr/td").Select(n => n.InnerText).ToList();
                 if (data.Remove("L")) data[data.IndexOf("T")] = "T/L";
-                var times = data.Where(s => TimeRegex().IsMatch(s)).ToArray();
-                var days = data.Where(s => DayRegex().IsMatch(s)).ToArray();
-                var classrooms = data.Where(s => ClassrooomRegex().IsMatch(s)).ToArray();
+                var times = data.Where(s => TimeRegex().IsMatch(s));
+                var days = data.Where(s => DayRegex().IsMatch(s));
+                var classrooms = data.Where(s => ClassrooomRegex().IsMatch(s));
                 data.RemoveAll(s => times.Contains(s) || days.Contains(s) || classrooms.Contains(s));
 
                 header.Remove("Días");
@@ -75,11 +103,11 @@ public static partial class FiScrapper
                 header.Add("Horario");
                 data.Add(string.Join(" | ", times));
 
-                if (data.Count != header.Count) throw new Exception("Different sizes");
+                if (data.Count != header.Count) throw new FiScrapperException("Different sizes");
                 var paired = header.Zip(data, (s, i) => new { s, i })
                     .ToDictionary(item => item.s, item => item.i);
 
-                paired["Profesor"] = NameRegex().Replace(paired["Profesor"], string.Empty);
+                paired["Profesor"] = NameRegex().Replace(paired["Profesor"], string.Empty).Trim();
 
                 var obj = ClassModel.CreateFromDictionary(paired);
                 result.Add(obj);

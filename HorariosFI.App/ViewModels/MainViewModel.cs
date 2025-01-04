@@ -73,7 +73,11 @@ public partial class MainViewModel : ObservableObject
 
             item.Horarios ??= await FiScrapper.GetClassShcedules(item.Clave);
             await MpScrapper.Run(item.Horarios!, new Progress<int>(p => ProgresoScrapMp = p), OpenSeleniumWindow);
-            ExcelExport.Export(item.Clave, item.Nombre ?? "Unknown", item.Horarios);
+            
+            // TODO : Add custom filename option
+            var exporter = new SpreadSheetExporter();
+            
+            exporter.Export(item.Clave, item.Nombre ?? "Unknown", item.Horarios);
             ClassCollection.Remove(item);
         }
         catch (Exception e)
