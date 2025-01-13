@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using DocumentFormat.OpenXml.Office2010.ExcelAc;
 using HorariosFI.Core;
+using HorariosFI.Core.Models;
 
 namespace HorariosFI.App.Models;
 

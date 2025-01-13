@@ -12,14 +12,18 @@ namespace HorariosFI.App.ViewModels;
 
 public partial class MainViewModel : ObservableObject
 {
+    private readonly SchedulesDb _schedulesDb;
     [ObservableProperty] private string _clave = "";
     [ObservableProperty] private ObservableCollection<InputClassModel> _classCollection = [];
     [ObservableProperty] private bool _progreso;
     [ObservableProperty] private int _progresoScrapMp;
     [ObservableProperty] private bool _openSeleniumWindow;
 
-    public MainViewModel()
+    public MainViewModel(SchedulesDb schedulesDb)
     {
+        _schedulesDb = schedulesDb;
+        schedulesDb.Database.EnsureCreated();
+        
 #if DEBUG
         ClassCollection.Add(new InputClassModel
         {
@@ -72,6 +76,7 @@ public partial class MainViewModel : ObservableObject
             }
 
             item.Horarios ??= await FiScrapper.GetClassShcedules(item.Clave);
+            
             await MpScrapper.Run(item.Horarios!, new Progress<int>(p => ProgresoScrapMp = p), OpenSeleniumWindow);
             
             // TODO : Add custom filename option

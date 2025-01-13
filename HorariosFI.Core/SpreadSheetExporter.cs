@@ -2,6 +2,7 @@
 using System.Text.RegularExpressions;
 using ClosedXML.Excel;
 using HorariosFI.Core.Extensions;
+using HorariosFI.Core.Models;
 
 namespace HorariosFI.Core;
 
@@ -54,13 +55,13 @@ public partial class SpreadSheetExporter(string filename = "Horarios_FI.xlsx")
 
         foreach (var (item, index) in classes.WithIndex())
         {
-            worksheet.Cell(index + 2, (int)PropIndex.Clave).SetValue(item.Clave.ToString());
-            worksheet.Cell(index + 2, (int)PropIndex.Group).SetValue(item.Gpo.ToString());
-            worksheet.Cell(index + 2, (int)PropIndex.Name).SetValue(item.Profesor);
-            worksheet.Cell(index + 2, (int)PropIndex.Tipo).SetValue(item.Tipo);
-            worksheet.Cell(index + 2, (int)PropIndex.Horario).SetValue(item.Horario);
-            worksheet.Cell(index + 2, (int)PropIndex.Dias).SetValue(item.Dias);
-            worksheet.Cell(index + 2, (int)PropIndex.Cupo).SetValue(item.Cupo.ToString());
+            worksheet.Cell(index + 2, (int)PropIndex.Clave).SetValue(item.Code.ToString());
+            worksheet.Cell(index + 2, (int)PropIndex.Group).SetValue(item.Group.ToString());
+            worksheet.Cell(index + 2, (int)PropIndex.Name).SetValue(item.Teacher);
+            worksheet.Cell(index + 2, (int)PropIndex.Tipo).SetValue(item.Type);
+            worksheet.Cell(index + 2, (int)PropIndex.Horario).SetValue(item.Schedules);
+            worksheet.Cell(index + 2, (int)PropIndex.Dias).SetValue(item.Days);
+            worksheet.Cell(index + 2, (int)PropIndex.Cupo).SetValue(item.Quota.ToString());
 
             // Special Cells
             worksheet.Cell(index + 2, (int)PropIndex.MpUrl).SetValue(item.MisProfesoresUrl ?? "NA");

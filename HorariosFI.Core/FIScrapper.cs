@@ -2,6 +2,7 @@
 using HtmlAgilityPack;
 using System.Text.RegularExpressions;
 using HorariosFI.Core.Exeptions;
+using HorariosFI.Core.Models;
 
 namespace HorariosFI.Core;
 
@@ -109,8 +110,7 @@ public static partial class FiScrapper
 
                 paired["Profesor"] = NameRegex().Replace(paired["Profesor"], string.Empty).Trim();
 
-                var obj = ClassModel.CreateFromDictionary(paired);
-                result.Add(obj);
+                result.Add(paired);
             }
         }
 

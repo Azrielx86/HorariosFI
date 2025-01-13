@@ -1,4 +1,5 @@
 using HorariosFI.Core;
+using HorariosFI.Core.Models;
 
 namespace HorariosFI.Test;
 
@@ -16,19 +17,19 @@ public class SpreadSheetExporterTest
         {
             new()
             {
-                Horario = "00:00",
-                Dias = "Lun, Mar",
+                Schedules = "00:00",
+                Days = "Lun, Mar",
                 Difficult = null,
                 Recommend = null,
-                Clave = 119,
-                Cupo = 40,
+                Code = 119,
+                Quota = 40,
                 Grade = null,
-                Tipo = "T",
-                Gpo = 4,
-                Profesor = $"Profesor null",
-                Salon = "B550",
+                Type = "T",
+                Group = 4,
+                Teacher = $"Profesor null",
+                Classroom = "B550",
                 MisProfesoresUrl = null,
-                Vacantes = 40
+                Vacancies = 40
             }
         };
 
@@ -48,19 +49,19 @@ public class SpreadSheetExporterTest
 
             var c = new ClassModel
             {
-                Horario = "00:00",
-                Dias = "Lun, Mar",
+                Schedules = "00:00",
+                Days = "Lun, Mar",
                 Difficult = difficult,
                 Recommend = i,
-                Clave = 119,
-                Cupo = 40,
+                Code = 119,
+                Quota = 40,
                 Grade = grade,
-                Tipo = "T",
-                Gpo = 4,
-                Profesor = $"Profesor {i}",
-                Salon = "B550",
+                Type = "T",
+                Group = 4,
+                Teacher = $"Profesor {i}",
+                Classroom = "B550",
                 MisProfesoresUrl = "http://localhost",
-                Vacantes = 40
+                Vacancies = 40
             };
 
             clases.Add(c);
