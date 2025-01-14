@@ -24,6 +24,7 @@ public partial class App : Application
         var collection = new ServiceCollection();
         collection.AddDbContext<SchedulesDb>();
         collection.AddTransient<MainViewModel>();
+        collection.AddTransient<SchedulesViewModel>();
         var services = collection.BuildServiceProvider();
 
         var vm = services.GetRequiredService<MainViewModel>();

@@ -1,17 +1,8 @@
-<Window xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-        x:Class="HorariosFI.App.Views.SchedulesView"
-        xmlns:vm="clr-namespace:HorariosFI.App.ViewModels"
-        x:DataType="vm:SchedulesViewModel"
-        Title="SchedulesView">
-    <Design.DataContext>
-        <vm:SchedulesViewModel></vm:SchedulesViewModel>
-    </Design.DataContext>
-    
-    <StackPanel>
-        <Label Content="{Binding Message}"></Label>
-    </StackPanel>
-</Window>
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="HorariosFI.App.Views.SchedulesView">
+    Welcome to Avalonia!
+</UserControl>

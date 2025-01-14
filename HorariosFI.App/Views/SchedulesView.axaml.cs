@@ -4,7 +4,7 @@ using Avalonia.Markup.Xaml;
 
 namespace HorariosFI.App.Views;
 
-public partial class SchedulesView : Window
+public partial class SchedulesView : UserControl
 {
     public SchedulesView()
     {
