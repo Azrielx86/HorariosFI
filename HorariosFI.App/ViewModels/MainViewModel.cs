@@ -4,9 +4,13 @@ using HorariosFI.Core;
 using MsBox.Avalonia;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reactive.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Threading.Tasks;
+using DynamicData;
+using HorariosFI.Core.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace HorariosFI.App.ViewModels;
 
@@ -23,14 +27,8 @@ public partial class MainViewModel : ObservableObject
     {
         _schedulesDb = schedulesDb;
         schedulesDb.Database.EnsureCreated();
-        
-#if DEBUG
-        ClassCollection.Add(new InputClassModel
-        {
-            Clave = 119,
-            Nombre = "Estructuras Discretas"
-        });
-#endif
+
+        ClassCollection.AddRange(schedulesDb.FiClasses.Select(c => new InputClassModel{Clave = c.Code, Nombre = c.Name}));
     }
 
     [RelayCommand]
@@ -39,20 +37,29 @@ public partial class MainViewModel : ObservableObject
         if (string.IsNullOrEmpty(Clave)) return;
         if (!int.TryParse(Clave, out var c)) return;
 
-        var className = await FiScrapper.GetClassName(c);
-        if (className is null)
-        {
-            await MessageBoxManager
-                .GetMessageBoxStandard("Error", "La clase no existe")
-                .ShowAsync();
-            Clave = "";
-            return;
-        }
+        var fiClass = await _schedulesDb.FiClasses.FirstOrDefaultAsync(fiClass => fiClass.Code == c);
 
+        if (fiClass is null)
+        {
+            var className = await FiScrapper.GetClassName(c);
+            if (className is null)
+            {
+                await MessageBoxManager
+                    .GetMessageBoxStandard("Error", "La clase no existe")
+                    .ShowAsync();
+                Clave = "";
+                return;
+            }
+
+            fiClass = new FiClass { Code = c, Name = className };
+            _schedulesDb.FiClasses.Add(fiClass);
+            await _schedulesDb.SaveChangesAsync();
+        }
+        
         var data = new InputClassModel
         {
-            Clave = c,
-            Nombre = className
+            Clave = fiClass.Code,
+            Nombre = fiClass.Name
         };
 
         ClassCollection.Add(data);
@@ -75,15 +82,19 @@ public partial class MainViewModel : ObservableObject
                 return;
             }
 
-            item.Horarios ??= await FiScrapper.GetClassShcedules(item.Clave);
-            
+            // item.Horarios ??= await FiScrapper.GetClassShcedules(item.Clave);
+            await FiScrapper.GetSchedules(_schedulesDb, item.Clave);
+
+#if ENABLE_AUTOMPSCRAP
             await MpScrapper.Run(item.Horarios!, new Progress<int>(p => ProgresoScrapMp = p), OpenSeleniumWindow);
+
             
             // TODO : Add custom filename option
             var exporter = new SpreadSheetExporter();
             
             exporter.Export(item.Clave, item.Nombre ?? "Unknown", item.Horarios);
             ClassCollection.Remove(item);
+#endif
         }
         catch (Exception e)
         {

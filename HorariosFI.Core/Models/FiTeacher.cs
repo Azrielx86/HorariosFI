@@ -4,16 +4,17 @@ using HorariosFI.Core.Attributes;
 
 namespace HorariosFI.Core.Models;
 
-public class Teacher
+public class FiTeacher
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public Guid Id { get; set; }
-    
+
     [FiTableName("Profesor")]
     [StringLength(128)]
     public string? Name { get; set; }
-    
+    public virtual ICollection<FiGroup> Groups { get; set; } = new List<FiGroup>();
+
     #region MisProfesoresData
 
     public double? Grade { get; set; } = null;
