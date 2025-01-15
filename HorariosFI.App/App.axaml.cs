@@ -2,7 +2,6 @@
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
-
 using HorariosFI.App.ViewModels;
 using HorariosFI.App.Views;
 using HorariosFI.Core;
@@ -21,13 +20,10 @@ public partial class App : Application
     {
         BindingPlugins.DataValidators.RemoveAt(0);
 
-        var collection = new ServiceCollection();
-        collection.AddDbContext<SchedulesDb>();
-        collection.AddTransient<MainViewModel>();
-        collection.AddTransient<SchedulesViewModel>();
-        var services = collection.BuildServiceProvider();
+        var services = new ServiceCollection().AddCommonServices();
 
         var vm = services.GetRequiredService<MainViewModel>();
+        
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             desktop.MainWindow = new MainWindow

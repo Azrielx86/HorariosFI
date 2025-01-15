@@ -2,7 +2,23 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:HorariosFI.App.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="HorariosFI.App.Views.SchedulesView">
-    Welcome to Avalonia!
+             x:Class="HorariosFI.App.Views.SchedulesView"
+             x:DataType="vm:SchedulesViewModel">
+    <Grid Margin="15"
+          ColumnDefinitions="Auto,*,Auto"
+          RowDefinitions="Auto,Auto,*,Auto">
+        <StackPanel Grid.Row="0" Grid.Column="0"
+                    Grid.ColumnSpan="2"
+                    VerticalAlignment="Center"
+                    Orientation="Horizontal"
+                    >
+            <Button Command="{Binding ReturnCommand}">Regresar</Button>
+            <TextBlock Margin="5,0,0,0" VerticalAlignment="Center" Text="{Binding Message}"></TextBlock>
+        </StackPanel>
+        <Grid Grid.Row="1" Grid.Column="1">
+            <DataGrid></DataGrid>
+        </Grid>
+    </Grid>
 </UserControl>
