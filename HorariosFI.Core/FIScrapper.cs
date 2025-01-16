@@ -2,13 +2,15 @@
 using HtmlAgilityPack;
 using System.Text.RegularExpressions;
 using HorariosFI.Core.Exeptions;
+using HorariosFI.Core.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace HorariosFI.Core;
 
 public static partial class FiScrapper
 {
     /*
-     * For development purposes and to no do too many requests to the faculty page.
+     * For development purposes and to avoid doing too many requests to the faculty page.
      * You can get the schedules manually with `curl` and save it with the format <class_code>.html
      * For example, in a example directory
      * .
@@ -16,7 +18,7 @@ public static partial class FiScrapper
      * |-- 1590.html
      *
      * And then you can start a local server with python using the following command:
-     * 
+     *
      *      python -m http.server 8000
      */
 #if DEBUG
@@ -44,9 +46,129 @@ public static partial class FiScrapper
         if (nameNode is null)
             return null;
 
-        var name = CleanNameRegex().Replace(nameNode.InnerHtml, "");
+        var name = ClassNameRegex().Replace(nameNode.InnerHtml, "");
 
         return name.ToTitle();
+    }
+
+    public static async Task<int> GetSchedules(SchedulesDb db, int classCode)
+    {
+        var classesCount = 0;
+        var client = new HttpClient();
+        var response = await client.GetAsync(string.Format(FiUrl, classCode));
+        var content = await response.Content.ReadAsStringAsync();
+        var document = new HtmlDocument();
+        document.LoadHtml(content);
+
+        var tables = document.DocumentNode.SelectNodes("//table");
+        if (tables is null || tables.Count == 0)
+            throw new ClassNotFoundException(classCode);
+
+        foreach (var table in tables)
+        {
+            var header = table.SelectNodes("tr")[1]
+                .SelectNodes("th")
+                .Select(n => n.InnerText)
+                .ToList();
+
+            foreach (var tbody in table.SelectNodes("tbody"))
+            {
+                var rows = tbody.SelectNodes("tr").Count;
+                var infoColumn = 0;
+                var firstRow = tbody.SelectNodes("tr").First().ChildNodes;
+
+                var code = header.Contains("Clave") ? int.Parse(firstRow[infoColumn++].InnerHtml) : -1;
+                var group = header.Contains("Gpo") ? int.Parse(firstRow[infoColumn++].InnerHtml) : -1;
+                var teacherName = header.Contains("Profesor") ? NameRegex().Replace(firstRow[infoColumn++].InnerHtml, string.Empty).Trim() : null;
+                var type = header.Contains("Tipo") ? firstRow[infoColumn++].InnerHtml : "NA";
+                var schedule = header.Contains("Horario") ? firstRow[infoColumn++].InnerHtml : "NA";
+                var days = header.Contains("Días") ? firstRow[infoColumn++].InnerHtml : "NA";
+                var classroom = header.Contains("Salón") ? firstRow[infoColumn++].InnerHtml : "NA";
+                var quota = header.Contains("Cupo") ? int.Parse(firstRow[infoColumn++].InnerHtml) : -1;
+                var vacancies = header.Contains("Vacantes") ? int.Parse(firstRow[infoColumn].InnerHtml) : -1;
+
+                var fiClass = await db.FiClasses.FirstAsync(c => c.Code == code);
+
+                var teacher = await db.FiTeachers.FirstOrDefaultAsync(t => t.Name == teacherName);
+                if (teacher is null)
+                {
+                    teacher = new FiTeacher { Name = teacherName };
+                    db.FiTeachers.Add(teacher);
+                }
+
+                var groupRegister = await db.FiGroups.FirstOrDefaultAsync(g => g.FiTeacher == teacher && g.Group == group);
+                if (groupRegister is null)
+                {
+                    groupRegister = new FiGroup
+                    {
+                        Group = group,
+                        Classroom = classroom,
+                        Days = days,
+                        Quota = quota,
+                        Type = type,
+                        Vacancies = vacancies,
+                        Schedules = schedule,
+                        FiTeacherId = teacher.Id,
+                        FiClassId = fiClass.Code
+                    };
+                    db.FiGroups.Add(groupRegister);
+                }
+
+                // Case for T/L type or more classrooms
+                if (rows > 1)
+                {
+                    var lastRow = tbody.SelectNodes("tr").Last().ChildNodes;
+
+                    var typeNode = lastRow.FirstOrDefault(r => TypeRegex().IsMatch(r.InnerHtml));
+                    if (typeNode is not null)
+                    {
+                        type = typeNode.InnerHtml;
+                        lastRow.Remove(typeNode);
+                    }
+
+                    var classroomNode = lastRow.FirstOrDefault(r => ClassrooomRegex().IsMatch(r.InnerHtml));
+                    if (classroomNode is not null)
+                    {
+                        classroom = classroomNode.InnerHtml;
+                        lastRow.Remove(classroomNode);
+                    }
+
+                    var hoursNode = lastRow.FirstOrDefault(r => TimeRegex().IsMatch(r.InnerHtml));
+                    if (hoursNode is not null)
+                    {
+                        schedule = hoursNode.InnerHtml;
+                        lastRow.Remove(hoursNode);
+                    }
+
+                    var daysNode = lastRow.FirstOrDefault(r => DayRegex().IsMatch(r.InnerHtml));
+                    if (daysNode is not null)
+                    {
+                        days = daysNode.InnerHtml;
+                        lastRow.Remove(daysNode);
+                    }
+
+                    groupRegister = new FiGroup
+                    {
+                        Group = group,
+                        Classroom = classroom,
+                        Days = days,
+                        Quota = quota,
+                        Type = type,
+                        Vacancies = vacancies,
+                        Schedules = schedule,
+                        FiTeacherId = teacher.Id,
+                        FiClassId = fiClass.Code
+                    };
+                    db.FiGroups.Add(groupRegister);
+                }
+
+                classesCount++;
+
+                await db.SaveChangesAsync();
+            }
+        }
+
+        return classesCount;
     }
 
     /// <summary>
@@ -54,10 +176,11 @@ public static partial class FiScrapper
     /// whithout interacting with the page.
     /// </summary>
     /// <param name="classCode">Code given in the career curriculum</param>
-    /// <returns>List with the data parsed in <see cref="ClassModel"/> objects</returns>
+    /// <returns>List with the data parsed in <see cref="FiClassModel"/> objects</returns>
     /// <exception cref="ClassNotFoundException">Thrown by a incorrect class code</exception>
     /// <exception cref="FiScrapperException">Thrown when incorrect data is scraped</exception>
-    public static async Task<List<ClassModel>> GetClassShcedules(int classCode)
+    [Obsolete("Will be replaced in the future", false)]
+    public static async Task<List<FiClassModel>> GetClassShcedules(int classCode)
     {
         var client = new HttpClient();
         var response = await client.GetAsync(string.Format(FiUrl, classCode));
@@ -69,7 +192,7 @@ public static partial class FiScrapper
         if (tables is null || tables.Count == 0)
             throw new ClassNotFoundException(classCode);
 
-        var result = new List<ClassModel>();
+        var result = new List<FiClassModel>();
 
         foreach (var table in tables)
         {
@@ -109,13 +232,17 @@ public static partial class FiScrapper
 
                 paired["Profesor"] = NameRegex().Replace(paired["Profesor"], string.Empty).Trim();
 
-                var obj = ClassModel.CreateFromDictionary(paired);
-                result.Add(obj);
+                result.Add(paired);
             }
         }
 
         return result;
     }
+
+    // private static void GetTClass(){}
+    // private static void GetTLClass(){}
+    // private static void GetTLPlusClass(){}
+
 
     [GeneratedRegex(@"\d\d:\d\d")]
     private static partial Regex TimeRegex();
@@ -127,8 +254,11 @@ public static partial class FiScrapper
     private static partial Regex DayRegex();
 
     [GeneratedRegex(@"^\w+:\s\[\d+\]\s\-\s")]
-    private static partial Regex CleanNameRegex();
+    private static partial Regex ClassNameRegex();
 
     [GeneratedRegex(@"[A-Z]\d{3}")]
     private static partial Regex ClassrooomRegex();
+
+    [GeneratedRegex(@"^(T\+?|L)$")]
+    private static partial Regex TypeRegex();
 }

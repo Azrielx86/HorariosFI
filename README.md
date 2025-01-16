@@ -9,9 +9,10 @@ Basado en una [versión anterior](https://github.com/Azrielx86/FI_Horarios) escr
 escrita en C# utiliza HtmlAgilityPack y Selenium para el web scapping, Avalonia para la interfaz gráfica, 
 así como ClosedXML para generar el archivo de Excel.
 
->[!CAUTION]
->NO DEBE DE TOMARSE COMO UNA VERDAD ABSOULTA, ES ÚNICAMENTE UNA ESTIMACIÓN, Y
->ES RESPONSABILIDAD DE QUIÉN LO USA.
+>[!WARNING]
+>MisProfesores no es una fuente _tan_ confiale en realidad, pero puede darte una
+>idea básica del profesor. Recomiendo enormemente consultar en los grupos de la facultad
+>por referencias.
 
 ## Ejemplo de la tabla
 
@@ -32,9 +33,28 @@ verde, amarillo o rojo, dependiendo del rango obtenido
 
 ## Interfaz Gráfica
 
-Por ahora solo es para agregar las materias que se quieran buscar, está pendiente mejorarla y agregar la barra de progreso.
-
 ![App Window](docs/window.png)
+
+![Schedules Window](./docs/SchedulesWindow.png)
+
+## Bugs conocidos
+
+Recientemente encontré este error en las últimas versiones de Chrome, realmente no he encontrado
+una solución para esto incluso con las opciones declaradas en el código.
+
+```csharp
+var chromeOptions = new ChromeOptions
+{
+    AcceptInsecureCertificates = true
+};
+chromeOptions.AddArgument("--test-type");
+chromeOptions.AddArgument("--ignore-certificate-errors");
+```
+
+Probablemente en el futuro cambie el driver a Firefox, o una opción para seleccionar
+el de su preferencia.
+
+![Chrome Error](./docs/ChromeError.png)
 
 >[!NOTE]
 >No me hago responsable del uso que se le de a este programa.

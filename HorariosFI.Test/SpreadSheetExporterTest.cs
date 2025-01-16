@@ -1,4 +1,5 @@
 using HorariosFI.Core;
+using HorariosFI.Core.Models;
 
 namespace HorariosFI.Test;
 
@@ -12,23 +13,23 @@ public class SpreadSheetExporterTest
     [Test]
     public void NullInsertsTest()
     {
-        var clases = new List<ClassModel>()
+        var clases = new List<FiClassModel>()
         {
             new()
             {
-                Horario = "00:00",
-                Dias = "Lun, Mar",
+                Schedules = "00:00",
+                Days = "Lun, Mar",
                 Difficult = null,
                 Recommend = null,
-                Clave = 119,
-                Cupo = 40,
+                Code = 119,
+                Quota = 40,
                 Grade = null,
-                Tipo = "T",
-                Gpo = 4,
-                Profesor = $"Profesor null",
-                Salon = "B550",
+                Type = "T",
+                Group = 4,
+                Teacher = $"Profesor null",
+                Classroom = "B550",
                 MisProfesoresUrl = null,
-                Vacantes = 40
+                Vacancies = 40
             }
         };
 
@@ -39,28 +40,28 @@ public class SpreadSheetExporterTest
     [Test]
     public void ValueRangesTest()
     {
-        var clases = new List<ClassModel>();
+        var clases = new List<FiClassModel>();
 
         for (var i = 0; i < 100; i++)
         {
             var difficult = i * 5 / 100.0;
             var grade = i * 10 / 100.0;
 
-            var c = new ClassModel
+            var c = new FiClassModel
             {
-                Horario = "00:00",
-                Dias = "Lun, Mar",
+                Schedules = "00:00",
+                Days = "Lun, Mar",
                 Difficult = difficult,
                 Recommend = i,
-                Clave = 119,
-                Cupo = 40,
+                Code = 119,
+                Quota = 40,
                 Grade = grade,
-                Tipo = "T",
-                Gpo = 4,
-                Profesor = $"Profesor {i}",
-                Salon = "B550",
+                Type = "T",
+                Group = 4,
+                Teacher = $"Profesor {i}",
+                Classroom = "B550",
                 MisProfesoresUrl = "http://localhost",
-                Vacantes = 40
+                Vacancies = 40
             };
 
             clases.Add(c);

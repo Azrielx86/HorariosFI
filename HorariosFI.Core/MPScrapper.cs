@@ -2,6 +2,7 @@
 using OpenQA.Selenium.Chrome;
 using HorariosFI.Core.Extensions;
 using HorariosFI.Core.Exeptions;
+using HorariosFI.Core.Models;
 
 namespace HorariosFI.Core;
 
@@ -24,29 +25,33 @@ public static class MpScrapper
     private const int Timeout = 3;
 
 
-    public static async Task Run(IList<ClassModel> classes, IProgress<int> progress, bool showWindow = false)
+    public static async Task Run(IList<FiClassModel> classes, IProgress<int> progress, bool showWindow = false)
     {
         await Task.Run(() =>
         {
-            var chromeOptions = new ChromeOptions();
+            var chromeOptions = new ChromeOptions
+            {
+                AcceptInsecureCertificates = true
+            };
+            chromeOptions.AddArgument("--test-type");
             chromeOptions.AddArgument("--ignore-certificate-errors");
             if (!showWindow)
             {
-                chromeOptions.AddArgument("log-level=3");
-                chromeOptions.AddArgument("headless");
+                chromeOptions.AddArgument("--log-level=3");
+                chromeOptions.AddArgument("--headless");
             }
 
             var chromeService = ChromeDriverService.CreateDefaultService();
             chromeService.HideCommandPromptWindow = true;
             using var driver = new ChromeDriver(chromeService, chromeOptions);
 
-            var found = new Dictionary<string, ClassModel>();
+            var found = new Dictionary<string, FiClassModel>();
             foreach (var (classvar, index) in classes.WithIndex())
             {
                 var p = index * 100 / classes.Count;
                 progress.Report(p);
 
-                if (found.TryGetValue(classvar.Profesor!, out var value))
+                if (found.TryGetValue(classvar.Teacher!, out var value))
                 {
                     classvar.Grade = value.Grade;
                     classvar.Difficult = value.Difficult;
@@ -59,7 +64,7 @@ public static class MpScrapper
                 {
                     var sleep = Random.Shared.Next(500, 4000);
                     Thread.Sleep(sleep);
-                    var mpUrl = string.Format(MpUrl, classvar.Profesor);
+                    var mpUrl = string.Format(MpUrl, classvar.Teacher);
                     driver.Navigate().GoToUrl(mpUrl);
 
                     var page = driver.FindElement(By.XPath(MpLinkXpath), Timeout) ?? throw new RobotDetectedException();
@@ -82,7 +87,7 @@ public static class MpScrapper
                     classvar.Recommend = double.Parse(recommend.Text.Replace("%", ""));
                     classvar.MisProfesoresUrl = driver.Url;
 
-                    found.Add(classvar.Profesor!, classvar);
+                    found.Add(classvar.Teacher!, classvar);
                 }
                 finally
                 {
