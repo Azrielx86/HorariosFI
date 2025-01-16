@@ -51,8 +51,9 @@ public static partial class FiScrapper
         return name.ToTitle();
     }
 
-    public static async Task GetSchedules(SchedulesDb db, int classCode)
+    public static async Task<int> GetSchedules(SchedulesDb db, int classCode)
     {
+        var classesCount = 0;
         var client = new HttpClient();
         var response = await client.GetAsync(string.Format(FiUrl, classCode));
         var content = await response.Content.ReadAsStringAsync();
@@ -65,21 +66,26 @@ public static partial class FiScrapper
 
         foreach (var table in tables)
         {
+            var header = table.SelectNodes("tr")[1]
+                .SelectNodes("th")
+                .Select(n => n.InnerText)
+                .ToList();
+
             foreach (var tbody in table.SelectNodes("tbody"))
             {
                 var rows = tbody.SelectNodes("tr").Count;
+                var infoColumn = 0;
                 var firstRow = tbody.SelectNodes("tr").First().ChildNodes;
 
-                var code = int.Parse(firstRow[0].InnerHtml);
-                var group = int.Parse(firstRow[1].InnerHtml);
-                var teacherName = NameRegex().Replace(firstRow[2].InnerHtml, string.Empty).Trim();
-                var type = firstRow[3].InnerHtml;
-                var schedule = firstRow[4].InnerHtml;
-                var days = firstRow[5].InnerHtml;
-                var classroom = firstRow[6].InnerHtml;
-                var quota = int.Parse(firstRow[7].InnerHtml);
-
-                var vacancies = firstRow.Count > 7 ? int.Parse(firstRow[8].InnerHtml) : 0;
+                var code = header.Contains("Clave") ? int.Parse(firstRow[infoColumn++].InnerHtml) : -1;
+                var group = header.Contains("Gpo") ? int.Parse(firstRow[infoColumn++].InnerHtml) : -1;
+                var teacherName = header.Contains("Profesor") ? NameRegex().Replace(firstRow[infoColumn++].InnerHtml, string.Empty).Trim() : null;
+                var type = header.Contains("Tipo") ? firstRow[infoColumn++].InnerHtml : "NA";
+                var schedule = header.Contains("Horario") ? firstRow[infoColumn++].InnerHtml : "NA";
+                var days = header.Contains("Días") ? firstRow[infoColumn++].InnerHtml : "NA";
+                var classroom = header.Contains("Salón") ? firstRow[infoColumn++].InnerHtml : "NA";
+                var quota = header.Contains("Cupo") ? int.Parse(firstRow[infoColumn++].InnerHtml) : -1;
+                var vacancies = header.Contains("Vacantes") ? int.Parse(firstRow[infoColumn].InnerHtml) : -1;
 
                 var fiClass = await db.FiClasses.FirstAsync(c => c.Code == code);
 
@@ -156,9 +162,13 @@ public static partial class FiScrapper
                     db.FiGroups.Add(groupRegister);
                 }
 
+                classesCount++;
+
                 await db.SaveChangesAsync();
             }
         }
+
+        return classesCount;
     }
 
     /// <summary>
@@ -166,11 +176,11 @@ public static partial class FiScrapper
     /// whithout interacting with the page.
     /// </summary>
     /// <param name="classCode">Code given in the career curriculum</param>
-    /// <returns>List with the data parsed in <see cref="ClassModel"/> objects</returns>
+    /// <returns>List with the data parsed in <see cref="FiClassModel"/> objects</returns>
     /// <exception cref="ClassNotFoundException">Thrown by a incorrect class code</exception>
     /// <exception cref="FiScrapperException">Thrown when incorrect data is scraped</exception>
     [Obsolete("Will be replaced in the future", false)]
-    public static async Task<List<ClassModel>> GetClassShcedules(int classCode)
+    public static async Task<List<FiClassModel>> GetClassShcedules(int classCode)
     {
         var client = new HttpClient();
         var response = await client.GetAsync(string.Format(FiUrl, classCode));
@@ -182,7 +192,7 @@ public static partial class FiScrapper
         if (tables is null || tables.Count == 0)
             throw new ClassNotFoundException(classCode);
 
-        var result = new List<ClassModel>();
+        var result = new List<FiClassModel>();
 
         foreach (var table in tables)
         {

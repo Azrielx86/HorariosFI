@@ -19,7 +19,7 @@ public class MapClassTest
         testValue.Add("Salón", "");
         testValue.Add("Horario", "");
 
-        var result = ClassModel.CreateFromDictionary(testValue);
+        var result = FiClassModel.CreateFromDictionary(testValue);
         result.Grade = 0;
         result.Difficult = 0;
         result.Recommend = 0;

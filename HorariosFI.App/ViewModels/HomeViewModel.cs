@@ -71,11 +71,11 @@ public partial class HomeViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void ViewSchedules(int clave)
+    private async Task ViewSchedules(int clave)
     {
         var schedulesViewModel = _router.GoTo<SchedulesViewModel>();
         schedulesViewModel.ClassCode = clave;
-        schedulesViewModel.ReadyToShow();
+        await schedulesViewModel.ReadyToShowAsync();
 
 //         try
 //         {

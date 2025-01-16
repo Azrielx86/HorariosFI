@@ -25,23 +25,27 @@ public static class MpScrapper
     private const int Timeout = 3;
 
 
-    public static async Task Run(IList<ClassModel> classes, IProgress<int> progress, bool showWindow = false)
+    public static async Task Run(IList<FiClassModel> classes, IProgress<int> progress, bool showWindow = false)
     {
         await Task.Run(() =>
         {
-            var chromeOptions = new ChromeOptions();
+            var chromeOptions = new ChromeOptions
+            {
+                AcceptInsecureCertificates = true
+            };
+            chromeOptions.AddArgument("--test-type");
             chromeOptions.AddArgument("--ignore-certificate-errors");
             if (!showWindow)
             {
-                chromeOptions.AddArgument("log-level=3");
-                chromeOptions.AddArgument("headless");
+                chromeOptions.AddArgument("--log-level=3");
+                chromeOptions.AddArgument("--headless");
             }
 
             var chromeService = ChromeDriverService.CreateDefaultService();
             chromeService.HideCommandPromptWindow = true;
             using var driver = new ChromeDriver(chromeService, chromeOptions);
 
-            var found = new Dictionary<string, ClassModel>();
+            var found = new Dictionary<string, FiClassModel>();
             foreach (var (classvar, index) in classes.WithIndex())
             {
                 var p = index * 100 / classes.Count;

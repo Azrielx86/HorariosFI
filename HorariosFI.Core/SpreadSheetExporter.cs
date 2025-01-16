@@ -26,12 +26,14 @@ public enum PropIndex
 
 public partial class SpreadSheetExporter(string filename = "Horarios_FI.xlsx")
 {
+    public string Filename { get; } = filename;
+
     [SuppressMessage("ReSharper", "SpecifyACultureInStringConversionExplicitly")]
-    public void Export(int classCode, string name, List<ClassModel>? classes)
+    public void Export(int classCode, string name, List<FiClassModel>? classes)
     {
         if (classes is null) return;
 
-        var document = File.Exists(filename) ? new XLWorkbook(filename) : new XLWorkbook();
+        var document = File.Exists(Filename) ? new XLWorkbook(Filename) : new XLWorkbook();
 
         var wsName = $"{classCode}-{ReplaceSpaces().Replace(name, " ")}"[..(name.Length > 31 ? 31 : name.Length)].Replace(":", string.Empty);
 
@@ -79,7 +81,7 @@ public partial class SpreadSheetExporter(string filename = "Horarios_FI.xlsx")
             recCell.Value = TryParseValue(item.Recommend, "NA");
         }
 
-        document.SaveAs(filename);
+        document.SaveAs(Filename);
     }
 
     private static string TryParseValue<T>(T? value, string @default)

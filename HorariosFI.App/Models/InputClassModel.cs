@@ -13,5 +13,5 @@ public class InputClassModel
 {
     public int Clave { get; set; }
     public string? Nombre { get; set; }
-    public List<ClassModel>? Horarios { get; set; }
+    public List<FiClassModel>? Horarios { get; set; }
 }

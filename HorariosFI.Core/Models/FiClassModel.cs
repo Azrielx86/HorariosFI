@@ -5,12 +5,9 @@ using HorariosFI.Core.Extensions;
 
 namespace HorariosFI.Core.Models;
 
-[Obsolete("Will be replaced in the future", false)]
-public class ClassModel
+public class FiClassModel
 {
-    [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public Guid Id { get; set; }
+    public Guid TeacherId { get; set; }
 
     #region FiData
     
@@ -60,14 +57,14 @@ public class ClassModel
 
     #endregion
 
-    public static implicit operator ClassModel(Dictionary<string, string> data)
+    public static implicit operator FiClassModel(Dictionary<string, string> data)
     {
         return CreateFromDictionary(data);
     }
 
-    public static ClassModel CreateFromDictionary(IReadOnlyDictionary<string, string> data)
+    public static FiClassModel CreateFromDictionary(IReadOnlyDictionary<string, string> data)
     {
-        var obj = new ClassModel();
+        var obj = new FiClassModel();
         var type = obj.GetType();
         foreach (var property in data)
         {

@@ -13,7 +13,7 @@ public class SpreadSheetExporterTest
     [Test]
     public void NullInsertsTest()
     {
-        var clases = new List<ClassModel>()
+        var clases = new List<FiClassModel>()
         {
             new()
             {
@@ -40,14 +40,14 @@ public class SpreadSheetExporterTest
     [Test]
     public void ValueRangesTest()
     {
-        var clases = new List<ClassModel>();
+        var clases = new List<FiClassModel>();
 
         for (var i = 0; i < 100; i++)
         {
             var difficult = i * 5 / 100.0;
             var grade = i * 10 / 100.0;
 
-            var c = new ClassModel
+            var c = new FiClassModel
             {
                 Schedules = "00:00",
                 Days = "Lun, Mar",

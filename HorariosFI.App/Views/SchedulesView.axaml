@@ -3,22 +3,120 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:HorariosFI.App.ViewModels"
+             xmlns:i="https://github.com/projektanker/icons.avalonia"
+             xmlns:models="clr-namespace:HorariosFI.Core.Models;assembly=HorariosFI.Core"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="HorariosFI.App.Views.SchedulesView"
              x:DataType="vm:SchedulesViewModel">
     <Grid Margin="15"
           ColumnDefinitions="Auto,*,Auto"
-          RowDefinitions="Auto,Auto,*,Auto">
+          RowDefinitions="Auto,*,Auto,Auto,Auto">
         <StackPanel Grid.Row="0" Grid.Column="0"
                     Grid.ColumnSpan="2"
                     VerticalAlignment="Center"
-                    Orientation="Horizontal"
-                    >
+                    Orientation="Horizontal">
             <Button Command="{Binding ReturnCommand}">Regresar</Button>
             <TextBlock Margin="5,0,0,0" VerticalAlignment="Center" Text="{Binding Message}"></TextBlock>
         </StackPanel>
         <Grid Grid.Row="1" Grid.Column="1">
-            <DataGrid></DataGrid>
+            <DataGrid
+                ItemsSource="{Binding Schedules}"
+                CanUserReorderColumns="False"
+                CanUserSortColumns="False"
+                CanUserResizeColumns="False"
+                AutoGenerateColumns="False">
+                <DataGrid.Columns>
+                    <DataGridTemplateColumn Header="Grupo">
+                        <DataTemplate DataType="models:FiClassModel">
+                            <Label Content="{Binding Group}"></Label>
+                        </DataTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="Profesor">
+                        <DataTemplate DataType="models:FiClassModel">
+                            <Label Content="{Binding Teacher}"></Label>
+                        </DataTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="Dificultad">
+                        <DataTemplate DataType="models:FiClassModel">
+                            <Label Content="{Binding Difficult}"></Label>
+                        </DataTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="Calificación">
+                        <DataTemplate DataType="models:FiClassModel">
+                            <Label Content="{Binding Grade}"></Label>
+                        </DataTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="Recomiendan">
+                        <DataTemplate DataType="models:FiClassModel">
+                            <Label Content="{Binding Recommend}"></Label>
+                        </DataTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="Link">
+                        <DataTemplate DataType="models:FiClassModel">
+                            <Button>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <i:Icon Value="mdi-vector-link"></i:Icon>
+                                </StackPanel>
+                            </Button>
+                        </DataTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="Horario">
+                        <DataTemplate DataType="models:FiClassModel">
+                            <Label Content="{Binding Schedules}"></Label>
+                        </DataTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="Días">
+                        <DataTemplate DataType="models:FiClassModel">
+                            <Label Content="{Binding Days}"></Label>
+                        </DataTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="Salón">
+                        <DataTemplate DataType="models:FiClassModel">
+                            <Label Content="{Binding Classroom}"></Label>
+                        </DataTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="Cupo">
+                        <DataTemplate DataType="models:FiClassModel">
+                            <Label Content="{Binding Quota}"></Label>
+                        </DataTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
         </Grid>
+        <ProgressBar Grid.ColumnSpan="3" Grid.Column="0"
+                     Margin="0,5"
+                     Value="{Binding ProgresoScrapMp}"
+                     ShowProgressText="True"
+                     IsVisible="{Binding Progreso}"
+                     Grid.Row="2">
+        </ProgressBar>
+        <StackPanel Grid.Row="3" Grid.Column="0"
+                    Grid.ColumnSpan="2"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Orientation="Horizontal">
+            <Button Command="{Binding GetScoresCommand}">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <i:Icon Value="mdi-magnify"></i:Icon>
+                    <Label>Actualizar MisProfesores</Label>
+                </StackPanel>
+            </Button>
+            <Button Command="{Binding ExportToExcelCommand}">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <i:Icon Value="mdi-content-save-outline"></i:Icon>
+                    <Label>Exportar a Excel</Label>
+                </StackPanel>
+            </Button>
+        </StackPanel>
+        <StackPanel Grid.Row="4" Grid.Column="0"
+                    Grid.ColumnSpan="2"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Center"
+                    Orientation="Horizontal">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Orientation="Horizontal">
+                <CheckBox IsChecked="{Binding OpenSeleniumWindow}"></CheckBox>
+                <Label HorizontalAlignment="Center" VerticalAlignment="Center">Open Selenium Window</Label>
+            </StackPanel>
+        </StackPanel>
     </Grid>
 </UserControl>
