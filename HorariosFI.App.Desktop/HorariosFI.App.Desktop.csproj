@@ -1,32 +1,27 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup>
-        <OutputType>WinExe</OutputType>
-        <!--If you are willing to use Windows/MacOS native APIs you will need to create 3 projects.
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <!--If you are willing to use Windows/MacOS native APIs you will need to create 3 projects.
     One for Windows with net7.0-windows TFM, one for MacOS with net7.0-macos and one with net7.0 TFM for Linux.-->
-        <TargetFramework>net8.0</TargetFramework>
-        <Nullable>enable</Nullable>
-        <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
-        <ApplicationManifest>app.manifest</ApplicationManifest>
-
-        <PublishSingleFile Condition="'$(Configuration)'=='RELEASE'">true</PublishSingleFile>
-        <SelfContained Condition="'$(Configuration)'=='RELEASE'">true</SelfContained>
-        <EnableCompresionSingleFile Condition="'$(Configuration)'=='RELEASE'">true</EnableCompresionSingleFile>
-        <IncludeNativeLibrariesForSelfExtract Condition="'$(Configuration)'=='RELEASE'">true</IncludeNativeLibrariesForSelfExtract>
-        
-        <AssemblyName>HorariosFI</AssemblyName>
-        <AssemblyVersion>1.1</AssemblyVersion>
-        
-        <ApplicationIcon>..\HorariosFI.App\Assets\avalonia-logo.ico</ApplicationIcon>
-    </PropertyGroup>
-
-    <ItemGroup>
-        <PackageReference Include="Avalonia.Desktop" Version="11.2.3" />
-        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-        <PackageReference Include="Semi.Avalonia" Version="11.2.1.3" />
-        <PackageReference Include="Semi.Avalonia.DataGrid" Version="11.2.1.3" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <ProjectReference Include="..\HorariosFI.App\HorariosFI.App.csproj"/>
-    </ItemGroup>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <PublishSingleFile Condition="'$(Configuration)'=='RELEASE'">true</PublishSingleFile>
+    <SelfContained Condition="'$(Configuration)'=='RELEASE'">true</SelfContained>
+    <EnableCompresionSingleFile Condition="'$(Configuration)'=='RELEASE'">true</EnableCompresionSingleFile>
+    <IncludeNativeLibrariesForSelfExtract Condition="'$(Configuration)'=='RELEASE'">true</IncludeNativeLibrariesForSelfExtract>
+    <AssemblyName>HorariosFI</AssemblyName>
+    <AssemblyVersion>1.1</AssemblyVersion>
+    <ApplicationIcon>..\HorariosFI.App\Assets\avalonia-logo.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Avalonia.Desktop" Version="11.2.3" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <PackageReference Include="Semi.Avalonia" Version="11.2.1.3" />
+    <PackageReference Include="Semi.Avalonia.DataGrid" Version="11.2.1.3" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\HorariosFI.App\HorariosFI.App.csproj" />
+  </ItemGroup>
 </Project>
