@@ -37,5 +37,13 @@ verde, amarillo o rojo, dependiendo del rango obtenido
 
 ![Schedules Window](./docs/SchedulesWindow.png)
 
+## Mejoras a futuro
+
+- Planeador de horarios (Similar al ![Generador de horarios](https://github.com/gsalvador209/Generador-de-horarios)
+  de ![gsalvador209](https://github.com/gsalvador209), pero sin la generación automática.
+- Servidor proxy para acelerar el scraping en MisProfesores.
+- Selección del navegador, actualmente requiere Google Chrome (Otras opciones considera Edge, Firefox y Chromium).
+  o directamente usar una alternativa a Selenium.
+
 >[!NOTE]
 >No me hago responsable del uso que se le de a este programa.
