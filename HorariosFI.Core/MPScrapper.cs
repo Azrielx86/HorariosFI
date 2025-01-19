@@ -8,7 +8,7 @@ namespace HorariosFI.Core;
 
 public static class MpScrapper
 {
-    private const string MpUrl = "http://www.misprofesores.com/Buscar?buscar=Profesores&q={0}";
+    private const string MpUrl = "https://www.misprofesores.com/Buscar?buscar=Profesores&q={0}";
 
     private const string MpLinkXpath =
         "//*[@id=\"___gcse_0\"]/div/div/div/div[5]/div[2]/div/div/div[1]/div[1]/div[1]/div[1]/div/a";
@@ -24,6 +24,9 @@ public static class MpScrapper
     //"//*[@id=\"mainContent\"]/div/div[2]/div[1]/div/div[2]/div[2]/div";
     private const int Timeout = 3;
 
+    private const int MinBotTimeout = 500;
+    
+    private const int MaxBotTimeout = 1000;
 
     public static async Task Run(IList<FiClassModel> classes, IProgress<int> progress, bool showWindow = false)
     {
@@ -62,13 +65,13 @@ public static class MpScrapper
 
                 try
                 {
-                    var sleep = Random.Shared.Next(500, 4000);
+                    var sleep = Random.Shared.Next(MinBotTimeout, MaxBotTimeout);
                     Thread.Sleep(sleep);
                     var mpUrl = string.Format(MpUrl, classvar.Teacher);
                     driver.Navigate().GoToUrl(mpUrl);
 
                     var page = driver.FindElement(By.XPath(MpLinkXpath), Timeout) ?? throw new RobotDetectedException();
-                    sleep = Random.Shared.Next(500, 4000);
+                    sleep = Random.Shared.Next(MinBotTimeout, MaxBotTimeout);
                     Thread.Sleep(sleep);
                     page.Click();
 
@@ -88,6 +91,13 @@ public static class MpScrapper
                     classvar.MisProfesoresUrl = driver.Url;
 
                     found.Add(classvar.Teacher!, classvar);
+                }
+                catch (Exception)
+                {
+                    classvar.Grade = -1;
+                    classvar.Difficult = -1;
+                    classvar.Recommend = -1;
+                    classvar.MisProfesoresUrl = null;
                 }
                 finally
                 {

@@ -53,7 +53,10 @@
                     </DataGridTemplateColumn>
                     <DataGridTemplateColumn Header="Link">
                         <DataTemplate DataType="models:FiClassModel">
-                            <Button>
+                            <!-- ReSharper disable once Xaml.PossibleNullReferenceException -->
+                            <Button
+                                Command="{Binding $parent.((vm:SchedulesViewModel)DataContext).OpenBrowserCommand}"
+                                CommandParameter="{Binding MisProfesoresUrl}">
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                     <i:Icon Value="mdi-vector-link"></i:Icon>
                                 </StackPanel>

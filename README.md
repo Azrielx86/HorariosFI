@@ -37,24 +37,5 @@ verde, amarillo o rojo, dependiendo del rango obtenido
 
 ![Schedules Window](./docs/SchedulesWindow.png)
 
-## Bugs conocidos
-
-Recientemente encontré este error en las últimas versiones de Chrome, realmente no he encontrado
-una solución para esto incluso con las opciones declaradas en el código.
-
-```csharp
-var chromeOptions = new ChromeOptions
-{
-    AcceptInsecureCertificates = true
-};
-chromeOptions.AddArgument("--test-type");
-chromeOptions.AddArgument("--ignore-certificate-errors");
-```
-
-Probablemente en el futuro cambie el driver a Firefox, o una opción para seleccionar
-el de su preferencia.
-
-![Chrome Error](./docs/ChromeError.png)
-
 >[!NOTE]
 >No me hago responsable del uso que se le de a este programa.

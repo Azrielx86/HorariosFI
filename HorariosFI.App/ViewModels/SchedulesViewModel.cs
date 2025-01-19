@@ -1,6 +1,8 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Avalonia.SimpleRouter;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -108,6 +110,17 @@ public partial class SchedulesViewModel(HistoryRouter<ViewModelBase> router, Sch
         await MessageBoxManager
             .GetMessageBoxStandard("Archivo exportado", $"El archivo ha sido exportado con el nombre: {exporter.Filename}")
             .ShowAsync();
+    }
+
+    [RelayCommand]
+    private static void OpenBrowser(string url)
+    {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            Process.Start(new ProcessStartInfo("cmd", $"/c start {url.Replace("&", "^&")}") { CreateNoWindow = true });
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            Process.Start("xdg-open", url);
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            Process.Start("open", url);
     }
 
     [RelayCommand]
