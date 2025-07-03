@@ -1,4 +1,5 @@
-﻿using HorariosFI.Core.Extensions;
+﻿using System.Diagnostics.CodeAnalysis;
+using HorariosFI.Core.Extensions;
 using HtmlAgilityPack;
 using System.Text.RegularExpressions;
 using HorariosFI.Core.Exeptions;
@@ -51,6 +52,7 @@ public static partial class FiScrapper
         return name.ToTitle();
     }
 
+    [SuppressMessage("Performance", "CA1862:Use the \'StringComparison\' method overloads to perform case-insensitive string comparisons")]
     public static async Task<int> GetSchedules(SchedulesDb db, int classCode)
     {
         var classesCount = 0;
@@ -66,16 +68,16 @@ public static partial class FiScrapper
 
         foreach (var table in tables)
         {
-            var header = table.SelectNodes("tr")[1]
-                .SelectNodes("th")
+            var header = table.SelectNodes("tr")![1]
+                .SelectNodes("th")!
                 .Select(n => n.InnerText)
                 .ToList();
 
-            foreach (var tbody in table.SelectNodes("tbody"))
+            foreach (var tbody in table.SelectNodes("tbody")!)
             {
-                var rows = tbody.SelectNodes("tr").Count;
+                var rows = tbody.SelectNodes("tr")!.Count;
                 var infoColumn = 0;
-                var firstRow = tbody.SelectNodes("tr").First().ChildNodes;
+                var firstRow = tbody.SelectNodes("tr")!.First().ChildNodes;
 
                 var code = header.Contains("Clave") ? int.Parse(firstRow[infoColumn++].InnerHtml) : -1;
                 var group = header.Contains("Gpo") ? int.Parse(firstRow[infoColumn++].InnerHtml) : -1;
@@ -89,7 +91,7 @@ public static partial class FiScrapper
 
                 var fiClass = await db.FiClasses.FirstAsync(c => c.Code == code);
 
-                var teacher = await db.FiTeachers.FirstOrDefaultAsync(t => t.Name.Equals(teacherName, StringComparison.CurrentCultureIgnoreCase));
+                var teacher = await db.FiTeachers.FirstOrDefaultAsync(t => t.Name.ToLower() == teacherName.ToLower());
                 if (teacher is null)
                 {
                     teacher = new FiTeacher { Name = teacherName };
@@ -117,7 +119,7 @@ public static partial class FiScrapper
                 // Case for T/L type or more classrooms
                 if (rows > 1)
                 {
-                    var lastRow = tbody.SelectNodes("tr").Last().ChildNodes;
+                    var lastRow = tbody.SelectNodes("tr")!.Last().ChildNodes;
 
                     var typeNode = lastRow.FirstOrDefault(r => TypeRegex().IsMatch(r.InnerHtml));
                     if (typeNode is not null)

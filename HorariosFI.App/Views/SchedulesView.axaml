@@ -11,7 +11,9 @@
              x:DataType="vm:SchedulesViewModel">
 
     <UserControl.Resources>
-        <converters:GradeColorConverter x:Key="ColorConverter"></converters:GradeColorConverter>
+        <converters:GradeColorConverter x:Key="GradeColor"></converters:GradeColorConverter>
+        <converters:RecommendColorConverter x:Key="RecommendColor"></converters:RecommendColorConverter>
+        <converters:DifficultColorConverter x:Key="DifficultColor"></converters:DifficultColorConverter>
     </UserControl.Resources>
 
     <Grid Margin="15"
@@ -44,17 +46,17 @@
                     </DataGridTemplateColumn>
                     <DataGridTemplateColumn Header="Dificultad">
                         <DataTemplate DataType="models:FiClassModel">
-                            <Label Content="{Binding Difficult}"></Label>
+                            <Label Background="{Binding Difficult, Converter={StaticResource DifficultColor}}" Content="{Binding Difficult}"></Label>
                         </DataTemplate>
                     </DataGridTemplateColumn>
                     <DataGridTemplateColumn Header="Calificación">
                         <DataTemplate DataType="models:FiClassModel">
-                            <Label Foreground="#11111b" Background="{Binding Grade, Converter={StaticResource ColorConverter}}" Content="{Binding Grade}"></Label>
+                            <Label Background="{Binding Grade, Converter={StaticResource GradeColor}}" Content="{Binding Grade}"></Label>
                         </DataTemplate>
                     </DataGridTemplateColumn>
                     <DataGridTemplateColumn Header="Recomiendan">
                         <DataTemplate DataType="models:FiClassModel">
-                            <Label Content="{Binding Recommend}"></Label>
+                            <Label Background="{Binding Recommend, Converter={StaticResource RecommendColor}}" Content="{Binding Recommend}"></Label>
                         </DataTemplate>
                     </DataGridTemplateColumn>
                     <DataGridTemplateColumn Header="Link">

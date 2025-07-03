@@ -1,21 +1,20 @@
 using System;
 using System.Globalization;
 using Avalonia.Data.Converters;
-using Avalonia.Media;
 using HorariosFI.App.Common;
 
 namespace HorariosFI.App.Converters;
 
-public class GradeColorConverter : IValueConverter
+public class DifficultColorConverter : IValueConverter
 {
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        if (value is not double grade) return new SolidColorBrush(Color.FromArgb(0, 0, 0, 0));
+        if (value is not double difficult) return AppColors.Black;
 
-        return grade switch
+        return difficult switch
         {
-            <= 5 => AppColors.Red,
-            <= 7 => AppColors.Yellow,
+            >= 4 => AppColors.Red,
+            >= 2.5 => AppColors.Yellow,
             _ => AppColors.Green
         };
     }
