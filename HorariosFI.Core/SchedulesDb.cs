@@ -5,12 +5,10 @@ namespace HorariosFI.Core;
 
 public class SchedulesDb : DbContext
 {
-    // public DbSet<ClassModel> Schedules { get; set; }
-
     public DbSet<FiTeacher> FiTeachers { get; set; }
     public DbSet<FiGroup> FiGroups { get; set; }
     public DbSet<FiClass> FiClasses { get; set; }
-    
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         base.OnConfiguring(optionsBuilder);
@@ -21,7 +19,6 @@ public class SchedulesDb : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        // modelBuilder.Entity<ClassModel>();
         modelBuilder.Entity<FiTeacher>()
             .HasMany(teacher => teacher.Groups)
             .WithOne(group => group.FiTeacher)

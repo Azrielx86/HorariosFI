@@ -43,13 +43,15 @@
                     <TextBlock>Agregar</TextBlock>
                 </StackPanel>
             </Button>
+            
             <!-- <Button -->
-            <!--     Margin="0,0,0,5" -->
+            <!--     Margin="0,0,10,5" -->
             <!--     VerticalAlignment="Center" -->
-            <!--     HorizontalAlignment="Center"> -->
+            <!--     HorizontalAlignment="Center" -->
+            <!--     > -->
             <!--     <StackPanel VerticalAlignment="Center" Orientation="Horizontal"> -->
-            <!--         <i:Icon Value="mdi-content-save-outline"></i:Icon> -->
-            <!--         <TextBlock>Materias consultadas</TextBlock> -->
+            <!--         <i:Icon Value="mdi-calendar-edit-outline"></i:Icon> -->
+            <!--         <TextBlock>Planear Horario</TextBlock> -->
             <!--     </StackPanel> -->
             <!-- </Button> -->
         </StackPanel>

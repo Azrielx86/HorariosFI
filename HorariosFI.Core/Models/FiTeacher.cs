@@ -12,7 +12,7 @@ public class FiTeacher
 
     [FiTableName("Profesor")]
     [StringLength(128)]
-    public string? Name { get; set; }
+    public required string Name { get; set; }
     public virtual ICollection<FiGroup> Groups { get; set; } = new List<FiGroup>();
 
     #region MisProfesoresData

@@ -53,33 +53,35 @@ public partial class SchedulesViewModel(HistoryRouter<ViewModelBase> router, Sch
             }
         }
 
-        var schedules = await (from fiGroup in schedulesDb.FiGroups
-                join teacher in schedulesDb.FiTeachers on fiGroup.FiTeacherId equals teacher.Id
-                where fiGroup.FiClassId == ClassCode
-                orderby fiGroup.Group
-                select new FiClassModel
-                {
-                    TeacherId = teacher.Id,
-                    Code = ClassCode,
-                    Classroom = fiGroup.Classroom,
-                    Days = fiGroup.Days,
-                    Difficult = teacher.Difficult,
-                    Grade = teacher.Grade,
-                    Group = fiGroup.Group,
-                    Recommend = teacher.Recommend,
-                    Quota = fiGroup.Quota,
-                    Schedules = fiGroup.Schedules,
-                    Teacher = teacher.Name,
-                    Vacancies = fiGroup.Vacancies,
-                    MisProfesoresUrl = teacher.MisProfesoresUrl,
-                    Type = fiGroup.Type
-                }
-            ).ToArrayAsync();
+        var schedules = await GetSchedules();
 
         Schedules.AddRange(schedules);
 
         await base.ReadyToShowAsync();
     }
+
+    private async Task<FiClassModel[]> GetSchedules() => await (from fiGroup in schedulesDb.FiGroups
+            join teacher in schedulesDb.FiTeachers on fiGroup.FiTeacherId equals teacher.Id
+            where fiGroup.FiClassId == ClassCode
+            orderby fiGroup.Group
+            select new FiClassModel
+            {
+                TeacherId = teacher.Id,
+                Code = ClassCode,
+                Classroom = fiGroup.Classroom,
+                Days = fiGroup.Days,
+                Difficult = teacher.Difficult,
+                Grade = teacher.Grade,
+                Group = fiGroup.Group,
+                Recommend = teacher.Recommend,
+                Quota = fiGroup.Quota,
+                Schedules = fiGroup.Schedules,
+                Teacher = teacher.Name,
+                Vacancies = fiGroup.Vacancies,
+                MisProfesoresUrl = teacher.MisProfesoresUrl,
+                Type = fiGroup.Type
+            }
+        ).ToArrayAsync();
 
     [ObservableProperty] private string _message = "Materia - Código";
 
@@ -99,6 +101,8 @@ public partial class SchedulesViewModel(HistoryRouter<ViewModelBase> router, Sch
         }
 
         await schedulesDb.SaveChangesAsync();
+        Schedules.Clear();
+        Schedules.AddRange(await GetSchedules());
         Progreso = false;
     }
 

@@ -14,6 +14,7 @@ public static class Ioc
         services.AddSingleton<MainViewModel>();
         services.AddTransient<HomeViewModel>();
         services.AddTransient<SchedulesViewModel>();
+        services.AddTransient<SchedulePlannerViewModel>();
         return services.BuildServiceProvider();
     }
 }

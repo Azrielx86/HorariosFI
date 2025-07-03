@@ -79,7 +79,7 @@ public static partial class FiScrapper
 
                 var code = header.Contains("Clave") ? int.Parse(firstRow[infoColumn++].InnerHtml) : -1;
                 var group = header.Contains("Gpo") ? int.Parse(firstRow[infoColumn++].InnerHtml) : -1;
-                var teacherName = header.Contains("Profesor") ? NameRegex().Replace(firstRow[infoColumn++].InnerHtml, string.Empty).Trim() : null;
+                var teacherName = header.Contains("Profesor") ? NameRegex().Replace(firstRow[infoColumn++].InnerHtml, string.Empty).Trim().ToTitle() : "NA";
                 var type = header.Contains("Tipo") ? firstRow[infoColumn++].InnerHtml : "NA";
                 var schedule = header.Contains("Horario") ? firstRow[infoColumn++].InnerHtml : "NA";
                 var days = header.Contains("Días") ? firstRow[infoColumn++].InnerHtml : "NA";
@@ -89,7 +89,7 @@ public static partial class FiScrapper
 
                 var fiClass = await db.FiClasses.FirstAsync(c => c.Code == code);
 
-                var teacher = await db.FiTeachers.FirstOrDefaultAsync(t => t.Name == teacherName);
+                var teacher = await db.FiTeachers.FirstOrDefaultAsync(t => t.Name.Equals(teacherName, StringComparison.CurrentCultureIgnoreCase));
                 if (teacher is null)
                 {
                     teacher = new FiTeacher { Name = teacherName };
@@ -171,83 +171,11 @@ public static partial class FiScrapper
         return classesCount;
     }
 
-    /// <summary>
-    /// Gets all the schedules from the faculty page, using the url which returns a table with all the data,
-    /// whithout interacting with the page.
-    /// </summary>
-    /// <param name="classCode">Code given in the career curriculum</param>
-    /// <returns>List with the data parsed in <see cref="FiClassModel"/> objects</returns>
-    /// <exception cref="ClassNotFoundException">Thrown by a incorrect class code</exception>
-    /// <exception cref="FiScrapperException">Thrown when incorrect data is scraped</exception>
-    [Obsolete("Will be replaced in the future", false)]
-    public static async Task<List<FiClassModel>> GetClassShcedules(int classCode)
-    {
-        var client = new HttpClient();
-        var response = await client.GetAsync(string.Format(FiUrl, classCode));
-        var content = await response.Content.ReadAsStringAsync();
-        var document = new HtmlDocument();
-        document.LoadHtml(content);
-
-        var tables = document.DocumentNode.SelectNodes("//table");
-        if (tables is null || tables.Count == 0)
-            throw new ClassNotFoundException(classCode);
-
-        var result = new List<FiClassModel>();
-
-        foreach (var table in tables)
-        {
-            // Localización del header
-            var header = table.SelectNodes("tr")[1]
-                .SelectNodes("th")
-                .Select(n => n.InnerText)
-                .ToList();
-
-            // Selección de los demás elementos
-            var profNodes = table.SelectNodes("tbody").ToList();
-            // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
-            foreach (var profInfo in profNodes)
-            {
-                var data = profInfo.SelectNodes("tr/td").Select(n => n.InnerText).ToList();
-                if (data.Remove("L")) data[data.IndexOf("T")] = "T/L";
-                var times = data.Where(s => TimeRegex().IsMatch(s));
-                var days = data.Where(s => DayRegex().IsMatch(s));
-                var classrooms = data.Where(s => ClassrooomRegex().IsMatch(s));
-                data.RemoveAll(s => times.Contains(s) || days.Contains(s) || classrooms.Contains(s));
-
-                header.Remove("Días");
-                header.Add("Días");
-                data.Add(string.Join(" | ", days));
-
-                header.Remove("Salón");
-                header.Add("Salón");
-                data.Add(string.Join(" | ", classrooms));
-
-                header.Remove("Horario");
-                header.Add("Horario");
-                data.Add(string.Join(" | ", times));
-
-                if (data.Count != header.Count) throw new FiScrapperException("Different sizes");
-                var paired = header.Zip(data, (s, i) => new { s, i })
-                    .ToDictionary(item => item.s, item => item.i);
-
-                paired["Profesor"] = NameRegex().Replace(paired["Profesor"], string.Empty).Trim();
-
-                result.Add(paired);
-            }
-        }
-
-        return result;
-    }
-
-    // private static void GetTClass(){}
-    // private static void GetTLClass(){}
-    // private static void GetTLPlusClass(){}
-
 
     [GeneratedRegex(@"\d\d:\d\d")]
     private static partial Regex TimeRegex();
 
-    [GeneratedRegex(@"<\w+>\(\*[\w\s\D]+\)</\w+>|\(\w+\)|\(\w+\s\w+\)|<\w+>|\w+\.|\s\(\*.+\)?")]
+    [GeneratedRegex(@"<.*>|\(\w+\)|\(\w+\s\w+\)|\w+\.|\s\(\*.+\)?")]
     private static partial Regex NameRegex();
 
     [GeneratedRegex(@"((\w{3},\s\w{3})|(^[A-Z]{1}\w{2}$))")]
